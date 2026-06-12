@@ -6,102 +6,125 @@ import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from typing import Dict, NoReturn, Tuple, Union
 
+
 ## main class implementation - Cell membrane extraction tool
-class GeometryContainer(ABC):
-    geometry: Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet]
+class GeometryBase(ABC):
+    geometry: Union[
+        o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet
+    ]
     config: Dict[str, bool]
-    
-    def __init__(self, geometry: Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet], **kwargs) -> NoReturn:
+
+    def __init__(
+        self,
+        geometry: Union[
+            o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet
+        ],
+        **kwargs,
+    ) -> NoReturn:
         self.geometry = geometry
 
         # config options for decorators - currently a placeholder
-        self.config = {"verbose": True,
-                       "DEBUG": False}
-        
+        self.config = {"verbose": True, "DEBUG": False}
+
         # update from kwargs if provided
         for key in self.config.keys():
             if key in kwargs:
                 self.config[key] = kwargs[key]
-                
+
         # override if DEBUG
         if self.config["DEBUG"]:
             self.config["verbose"] = True
-        
+
         # run post init
         self.__post_init__()
-        
+
     def __post_init__(self) -> NoReturn:
         pass
-    
+
     # %% Classmethods
     @classmethod
     @abstractmethod
-    def from_ply(cls, file_path: str, **kwargs) -> "GeometryContainer":
+    def from_ply(cls, file_path: str, **kwargs) -> "GeometryBase":
         pass
-    
+
     @classmethod
     @abstractmethod
-    def from_o3d(cls, geometry: Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet], **kwargs) -> "GeometryContainer":
+    def from_o3d(
+        cls,
+        geometry: Union[
+            o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet
+        ],
+        **kwargs,
+    ) -> "GeometryBase":
         pass
-    
+
     # %% Utility functions
     def get_center_of_mass(self) -> np.ndarray:
         return self.geometry.get_center()
-    
+
     def get_max_bound(self) -> np.ndarray:
         return self.geometry.get_max_bound()
-    
+
     def get_min_bound(self) -> np.ndarray:
         return self.geometry.get_min_bound()
-    
+
     def get_axis_aligned_bounding_box(self) -> o3d.geometry.AxisAlignedBoundingBox:
         return self.geometry.get_axis_aligned_bounding_box()
-    
+
     def get_oriented_bounding_box(self) -> o3d.geometry.OrientedBoundingBox:
         return self.geometry.get_oriented_bounding_box()
-    
+
     def get_center_of_bounding_box(self) -> np.ndarray:
         return self.geometry.get_axis_aligned_bounding_box().get_center()
-    
+
     # %% Data Manipulation
-    def translate(self, translation_vector: np.ndarray, inplace: bool = True) -> Union["GeometryContainer", NoReturn]:
+    def translate(
+        self, translation_vector: np.ndarray, inplace: bool = True
+    ) -> Union["GeometryBase", NoReturn]:
         if inplace:
             self.geometry.translate(translation_vector)
         else:
             new_geometry = deepcopy(self.geometry).translate(translation_vector)
-            return GeometryContainer.from_o3d(new_geometry)
-        
-    def scale(self, scale_factor: float, center: Union[np.ndarray, bool] = True, inplace: bool = True) -> Union["GeometryContainer", NoReturn]:
+            return GeometryBase.from_o3d(new_geometry)
+
+    def scale(
+        self,
+        scale_factor: float,
+        center: Union[np.ndarray, bool] = True,
+        inplace: bool = True,
+    ) -> Union["GeometryBase", NoReturn]:
         if center is None:
             center = self.get_center_of_mass()
         if inplace:
             self.geometry.scale(scale_factor, center)
         else:
             new_geometry = deepcopy(self.geometry).scale(scale_factor, center)
-            return GeometryContainer.from_o3d(new_geometry)
-    
-    def center_on_origin(self, inplace:bool = True) -> Union["GeometryContainer", NoReturn]:
+            return GeometryBase.from_o3d(new_geometry)
+
+    def center_on_origin(self, inplace: bool = True) -> Union["GeometryBase", NoReturn]:
         center_of_mass = self.get_center_of_mass()
         translation_vector = -center_of_mass
-        
+
         if inplace:
             self.geometry.translate(translation_vector)
         else:
             new_geometry = deepcopy(self.geometry).translate(translation_vector)
-            return GeometryContainer.from_o3d(new_geometry)
-    
+            return GeometryBase.from_o3d(new_geometry)
+
     # %% 3D Visualization functions
     def visualize(self) -> NoReturn:
         o3d.visualization.draw_geometries([self.geometry])
-        
+
     def visualize_only(self, *args) -> NoReturn:
         o3d.visualization.draw_geometries([*args])
-        
+
     def visualize_with(self, *args) -> NoReturn:
-        args = [arg.geometry if isinstance(arg, GeometryContainer) else arg for arg in args]
+        args = [arg.geometry if isinstance(arg, GeometryBase) else arg for arg in args]
         o3d.visualization.draw_geometries([self.geometry, *args])
-        
-    def visual_editor(self, inplace:bool = True, full_screen:bool = False) ->  Union["GeometryContainer", NoReturn]:
+
+    def visual_editor(
+        self, inplace: bool = True, full_screen: bool = False
+    ) -> Union["GeometryBase", NoReturn]:
         # build the visualizer object and add the point cloud to it
         vis = o3d.visualization.VisualizerWithEditing()
         # run the visualizer
@@ -117,30 +140,36 @@ class GeometryContainer(ABC):
 
         # chosen points are stored in vis.get_cropped_geometry()
         edited_geometry = vis.get_cropped_geometry()
-        
+
         if inplace:
             self.geometry = edited_geometry
             return self
         else:
-            return GeometryContainer.from_o3d(edited_geometry)
-    
+            return GeometryBase.from_o3d(edited_geometry)
+
     # %% Visualization helper functions
     def paint_uniform_color(self, color: Tuple[float, float, float]) -> NoReturn:
         self.geometry.paint_uniform_color(color)
-        
-    def paint_by_array(self, color_array: np.ndarray, cmap: Union[str, plt.cm.ScalarMappable] = "viridis") -> NoReturn:
+
+    def paint(
+        self,
+        color_array: np.ndarray,
+        cmap: Union[str, plt.cm.ScalarMappable] = "viridis",
+    ) -> NoReturn:
         # select colormap
         if isinstance(cmap, str):
-            cmap = plt.cm.get_cmap(cmap)
-        
+            cmap = plt.colormaps[cmap]
+
         # apply colormap to the color array
         norm = plt.Normalize(vmin=np.min(color_array), vmax=np.max(color_array))
-        color_array = cmap(norm(color_array))[:, :3]  # apply colormap and take only RGB values
+        color_array = cmap(norm(color_array))[
+            :, :3
+        ]  # apply colormap and take only RGB values
 
         # paint the point cloud with the new colors
         self.geometry.colors = o3d.utility.Vector3dVector(color_array)
-        
-    def print_visualizer_key_bindings(self)-> NoReturn:
+
+    def print_visualizer_key_bindings(self) -> NoReturn:
         print(
             """
             -- Mouse view control --
@@ -208,17 +237,21 @@ class GeometryContainer(ABC):
                 S            : Save selected points to a .ply file when picking points.
             """
         )
-        
-    # %% IO    
+
+    # %% IO
     @abstractmethod
     def save(self, file_path: str) -> NoReturn:
         pass
-        
+
     @abstractmethod
     def load(self, file_path: str) -> NoReturn:
         pass
-        
+
     # %% Dunder methods
     @abstractmethod
-    def __repr__(self) -> "GeometryContainer":
+    def __repr__(self) -> "GeometryBase":
+        pass
+
+    @abstractmethod
+    def __len__(self) -> int:
         pass
