@@ -1,10 +1,10 @@
 ## dependencies
 import numpy as np
 import open3d as o3d
+import matplotlib.colors
 from copy import deepcopy
-import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
-from typing import Dict, NoReturn, Tuple, Union
+from typing import Dict, Tuple, Union
 
 
 ## main class implementation - Cell membrane extraction tool
@@ -20,7 +20,7 @@ class GeometryBase(ABC):
             o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet
         ],
         **kwargs,
-    ) -> NoReturn:
+    ) -> None:
         self.geometry = geometry
 
         # config options for decorators - currently a placeholder
@@ -38,7 +38,7 @@ class GeometryBase(ABC):
         # run post init
         self.__post_init__()
 
-    def __post_init__(self) -> NoReturn:
+    def __post_init__(self) -> None:
         pass
 
     # %% Classmethods
@@ -80,7 +80,7 @@ class GeometryBase(ABC):
     # %% Data Manipulation
     def translate(
         self, translation_vector: np.ndarray, inplace: bool = True
-    ) -> Union["GeometryBase", NoReturn]:
+    ) -> Union["GeometryBase", None]:
         if inplace:
             self.geometry.translate(translation_vector)
         else:
@@ -92,7 +92,7 @@ class GeometryBase(ABC):
         scale_factor: float,
         center: Union[np.ndarray, bool] = True,
         inplace: bool = True,
-    ) -> Union["GeometryBase", NoReturn]:
+    ) -> Union["GeometryBase", None]:
         if center is None:
             center = self.get_center_of_mass()
         if inplace:
@@ -101,7 +101,7 @@ class GeometryBase(ABC):
             new_geometry = deepcopy(self.geometry).scale(scale_factor, center)
             return GeometryBase.from_o3d(new_geometry)
 
-    def center_on_origin(self, inplace: bool = True) -> Union["GeometryBase", NoReturn]:
+    def center_on_origin(self, inplace: bool = True) -> Union["GeometryBase", None]:
         center_of_mass = self.get_center_of_mass()
         translation_vector = -center_of_mass
 
@@ -112,21 +112,21 @@ class GeometryBase(ABC):
             return GeometryBase.from_o3d(new_geometry)
 
     # %% 3D Visualization functions
-    def visualize(self) -> NoReturn:
-        o3d.visualization.draw_geometries([self.geometry])
+    def visualize(self) -> None:
+        o3d.visualization.draw_geometries([self.geometry])  # type: ignore
 
-    def visualize_only(self, *args) -> NoReturn:
-        o3d.visualization.draw_geometries([*args])
+    def visualize_only(self, *args) -> None:
+        o3d.visualization.draw_geometries([*args])  # type: ignore
 
-    def visualize_with(self, *args) -> NoReturn:
+    def visualize_with(self, *args) -> None:
         args = [arg.geometry if isinstance(arg, GeometryBase) else arg for arg in args]
-        o3d.visualization.draw_geometries([self.geometry, *args])
+        o3d.visualization.draw_geometries([self.geometry, *args])  # type: ignore
 
     def visual_editor(
         self, inplace: bool = True, full_screen: bool = False
-    ) -> Union["GeometryBase", NoReturn]:
+    ) -> Union["GeometryBase", None]:
         # build the visualizer object and add the point cloud to it
-        vis = o3d.visualization.VisualizerWithEditing()
+        vis = o3d.visualization.VisualizerWithEditing()  # type: ignore
         # run the visualizer
         vis.create_window()
         # set full screen if requested
@@ -148,20 +148,22 @@ class GeometryBase(ABC):
             return GeometryBase.from_o3d(edited_geometry)
 
     # %% Visualization helper functions
-    def paint_uniform_color(self, color: Tuple[float, float, float]) -> NoReturn:
+    def paint_uniform_color(self, color: Tuple[float, float, float]) -> None:
         self.geometry.paint_uniform_color(color)
 
     def paint(
         self,
         color_array: np.ndarray,
-        cmap: Union[str, plt.cm.ScalarMappable] = "viridis",
-    ) -> NoReturn:
+        cmap: Union[str, matplotlib.colors.Colormap] = "viridis",
+    ) -> None:
         # select colormap
         if isinstance(cmap, str):
-            cmap = plt.colormaps[cmap]
+            cmap = matplotlib.colormaps[cmap]
 
         # apply colormap to the color array
-        norm = plt.Normalize(vmin=np.min(color_array), vmax=np.max(color_array))
+        norm = matplotlib.colors.Normalize(
+            vmin=np.min(color_array), vmax=np.max(color_array)
+        )
         color_array = cmap(norm(color_array))[
             :, :3
         ]  # apply colormap and take only RGB values
@@ -169,7 +171,7 @@ class GeometryBase(ABC):
         # paint the point cloud with the new colors
         self.geometry.colors = o3d.utility.Vector3dVector(color_array)
 
-    def print_visualizer_key_bindings(self) -> NoReturn:
+    def print_visualizer_key_bindings(self) -> None:
         print(
             """
             -- Mouse view control --
@@ -240,18 +242,31 @@ class GeometryBase(ABC):
 
     # %% IO
     @abstractmethod
-    def save(self, file_path: Union[str, None] = None) -> NoReturn:
+    def save(self, file_path: Union[str, None] = None) -> None:
         pass
 
     @abstractmethod
-    def load(self, file_path: Union[str, None] = None) -> NoReturn:
+    def load(self, file_path: Union[str, None] = None) -> None:
         pass
 
     # %% Dunder methods
     @abstractmethod
-    def __repr__(self) -> "GeometryBase":
+    def __repr__(self) -> str:
         pass
 
     @abstractmethod
     def __len__(self) -> int:
         pass
+
+    # %% Properties
+    @property
+    def colors(self) -> Union[np.ndarray, o3d.utility.Vector3dVector]:
+        return self.geometry.colors
+
+    @colors.setter
+    def colors(
+        self, color_array: Union[np.ndarray, o3d.utility.Vector3dVector]
+    ) -> None:
+        if isinstance(color_array, np.ndarray):
+            color_array = o3d.utility.Vector3dVector(color_array)
+        self.geometry.colors = color_array

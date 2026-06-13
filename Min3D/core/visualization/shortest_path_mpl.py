@@ -1,8 +1,10 @@
 ## dependencies
 import matplotlib
 import numpy as np
-from PltStyler import PltStyler
+from typing import Union
+import matplotlib.figure
 import matplotlib.pyplot as plt
+from PltStyler import PltStyler
 from rustworkx.visualization import mpl_draw
 
 ## custom dependencies
@@ -14,13 +16,13 @@ __all__ = ["shortest_path_mpl"]
 # %% Visualization functions
 def shortest_path_mpl(
     graph: SurfaceGraph, start_node: int, end_node: int, return_figure: bool = True
-) -> plt.Figure:
+) -> Union[matplotlib.figure.Figure, None]:
 
     if not __check_plot_feasibility__(graph):
         return None
 
     # stylesheet for plotting
-    PltStyler().set_stylesheet("bright").set_font(size=12).apply_stylesheet()
+    PltStyler().set_stylesheet("bright").set_font(size=12).apply()
 
     # create color array for visualization
     colors_nodes = np.full(graph.graph.num_nodes(), fill_value=0)

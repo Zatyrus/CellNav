@@ -2,7 +2,7 @@
 import numpy as np
 import open3d as o3d
 
-from typing import List, NoReturn, Union
+from typing import List, Union
 
 ## custom dependencies
 from Min3D.core.util.make_3d_path import make_3d_path
@@ -17,7 +17,7 @@ def draw_3d_path(
     cmap: str = "viridis",
     scale_factor: float = 1.0,
     magnitude: Union[str, float] = "auto",
-) -> NoReturn:
+) -> None:
     ## generate path3D object from the path and color information
     path_3d = make_3d_path(
         path=path,
@@ -27,7 +27,7 @@ def draw_3d_path(
         magnitude=magnitude,
     )
     # visualize the base wireframe and the path lineset together
-    o3d.visualization.draw_geometries(
+    o3d.visualization.draw_geometries(  # type: ignore
         path_3d.to_list(),
         window_name="Path Visualization",
     )

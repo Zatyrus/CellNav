@@ -1,8 +1,11 @@
 ## dependencies
-import sys
 import os
+import sys
 import numpy as np
 import open3d as o3d
+import matplotlib.axes
+import matplotlib.figure
+
 from overrides import overrides
 import matplotlib.pyplot as plt
 from PltStyler import PltStyler
@@ -12,7 +15,7 @@ if sys.platform.startswith("win"):
 else:
     pyfd = None  # placeholder for non-Windows systems, as tkinter is not supported on Unix-based systems
 
-from typing import Any, NoReturn, Tuple, Union
+from typing import Any, List, NoReturn, Tuple, Union
 
 ## custom dependencies
 from Min3D.core.containers.geometry_base import GeometryBase
@@ -20,7 +23,7 @@ from Min3D.core.containers.geometry_base import GeometryBase
 
 ## main class implementation - Cell membrane extraction tool
 class PointCloud(GeometryBase):
-    def __init__(self, geometry: o3d.geometry.PointCloud, **kwargs) -> NoReturn:
+    def __init__(self, geometry: o3d.geometry.PointCloud, **kwargs) -> None:
         super().__init__(geometry=geometry, **kwargs)
 
     # %% Classmethods
@@ -33,7 +36,8 @@ class PointCloud(GeometryBase):
                     "File dialog is only supported on Windows. Please provide a file path."
                 )
             file_path = pyfd.call_file(
-                title="Select Point Cloud PLY File", filetypes=[("PLY files", "*.ply")]
+                title="Select Point Cloud PLY File",
+                filetypes=[("PLY files", "*.ply")],
             )
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
@@ -103,11 +107,13 @@ class PointCloud(GeometryBase):
         hull, _ = self.geometry.compute_convex_hull()
         return hull.get_surface_area()
 
-    def get_nearest_neighbor_distance(self) -> float:
+    def get_nearest_neighbor_distance(self) -> np.ndarray:
         return np.asarray(self.geometry.compute_nearest_neighbor_distance())
 
     def get_average_dNN(self) -> float:
-        return np.mean(np.asarray(self.geometry.compute_nearest_neighbor_distance()))
+        return float(
+            np.mean(np.asarray(self.geometry.compute_nearest_neighbor_distance()))
+        )
 
     # %% Bounding geometry functions
     def get_bounding_sphere(self) -> Tuple[np.ndarray, float]:
@@ -120,7 +126,7 @@ class PointCloud(GeometryBase):
         scale_factors: Tuple[float, float, float],
         center: Union[np.ndarray, bool] = True,
         inplace: bool = True,
-    ) -> Union["PointCloud", NoReturn]:
+    ) -> Union["PointCloud", None]:
         if isinstance(center, bool) and center:
             self.center_on_origin(inplace=True)
         if isinstance(center, np.ndarray):
@@ -152,7 +158,7 @@ class PointCloud(GeometryBase):
         std_ratio: float = 2.0,
         inplace: bool = True,
         display_result: bool = True,
-    ) -> Union["PointCloud", NoReturn]:
+    ) -> Union["PointCloud", None]:
         # call the open3d function for statistical outlier removal
         cl, ind = self.geometry.remove_statistical_outlier(
             nb_neighbors=nb_points, std_ratio=std_ratio
@@ -173,7 +179,7 @@ class PointCloud(GeometryBase):
         radius: float = 0.05,
         inplace: bool = True,
         display_result: bool = True,
-    ) -> Union["PointCloud", NoReturn]:
+    ) -> Union["PointCloud", None]:
         # call the open3d function for radius outlier removal
         cl, ind = self.geometry.remove_radius_outlier(
             nb_points=nb_points, radius=radius
@@ -190,8 +196,8 @@ class PointCloud(GeometryBase):
 
     # %% Measurement plots
     def plot_spread_of_points_around_center(
-        self, bins = 100, dpi: int = 100, style: str = "bright", return_fig: bool = False
-    ) -> Union[Tuple[plt.Figure, plt.Axes], NoReturn]:
+        self, bins=100, dpi: int = 100, style: str = "bright", return_fig: bool = False
+    ) -> Union[Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes], None]:
         center_of_mass = self.get_center_of_mass()
         distance_to_center_of_mass = np.linalg.norm(
             np.asarray(self.geometry.points) - center_of_mass, axis=1
@@ -206,7 +212,8 @@ class PointCloud(GeometryBase):
         fig, ax = plt.subplots(1, 1, figsize=(8, 2), dpi=dpi)
         ax.boxplot(
             distance_to_center_of_mass,
-            **default_boxplot_params | {"boxprops": {"facecolor": "lightcoral", "color": "black"}},
+            **default_boxplot_params
+            | {"boxprops": {"facecolor": "lightcoral", "color": "black"}},
         )
         ax.scatter(
             np.mean(distance_to_center_of_mass),
@@ -228,8 +235,8 @@ class PointCloud(GeometryBase):
             return fig, ax
 
     def plot_2d_histogram_of_points(
-        self, bins = 50, dpi = 100, cmap = "inferno", style = "bright", return_fig: bool = False
-    ) -> Union[Tuple[plt.Figure, plt.Axes], NoReturn]:
+        self, bins=50, dpi=100, cmap="inferno", style="bright", return_fig: bool = False
+    ) -> Union[Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes], None]:
         points = np.asarray(self.geometry.points)
         center_of_mass = self.get_center_of_mass()
         axes_key = {0: "X", 1: "Y", 2: "Z"}
@@ -263,17 +270,17 @@ class PointCloud(GeometryBase):
         if return_fig:
             return fig, axs
 
-    def plot_dNN(self, **kwargs) -> NoReturn:
+    def plot_dNN(self, **kwargs) -> None:
         self.plot_dNN_for(self.geometry, **kwargs)
 
     def plot_dNN_for(
         self,
         *args: Union["PointCloud", o3d.geometry.PointCloud],
-        x_lim: Tuple[float, float] = None,
+        x_lim: Union[Tuple[float, float], None] = None,
         dpi: int = 100,
         style: str = "bright",
         return_fig: bool = False,
-    ) -> Union[Tuple[plt.Figure, plt.Axes], NoReturn]:
+    ) -> Union[Tuple[matplotlib.figure.Figure, List[matplotlib.axes.Axes]], None]:
         ## Step 1.3 compute nearest neighbor distances and plot boxplots
         # the dNN of the poisson disk sampling should be more consistent (narrower histogram) than the uniform sampling, which may have a wider spread of dNN values.
         # as we derive the wireframe from the poisson disk sampling, the dNN distribution matches the distribution of edge lengths in the wireframe, which is desirable for surface reconstruction.
@@ -310,7 +317,10 @@ class PointCloud(GeometryBase):
         for i, arg in enumerate(args):
             axs[i].boxplot(
                 dNN[i],
-                **default_boxplot_params | {"boxprops": {"facecolor": colors[i % len(colors)], "color": "black"}},
+                **default_boxplot_params
+                | {
+                    "boxprops": {"facecolor": colors[i % len(colors)], "color": "black"}
+                },
             )
             axs[i].scatter(
                 np.mean(dNN[i]),
@@ -338,6 +348,8 @@ class PointCloud(GeometryBase):
 
         if return_fig:
             return fig, axs
+        else:
+            plt.show()
 
     # %% Nearest Neighbor Search
     def get_kNN(self, point: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
@@ -394,7 +406,7 @@ class PointCloud(GeometryBase):
 
     # %% IO
     @overrides
-    def save(self, file_path: Union[str, None] = None) -> NoReturn:
+    def save(self, file_path: Union[str, None] = None) -> None:
         if file_path is None or not os.path.isdir(os.path.dirname(file_path)):
             if pyfd is None:
                 raise RuntimeError(
@@ -412,14 +424,15 @@ class PointCloud(GeometryBase):
         o3d.io.write_point_cloud(file_path, self.geometry)
 
     @overrides
-    def load(self, file_path: Union[str, None] = None) -> NoReturn:
+    def load(self, file_path: Union[str, None] = None) -> None:
         if file_path is None or not os.path.isfile(file_path):
             if pyfd is None:
                 raise RuntimeError(
                     "File dialog is only supported on Windows. Please provide a file path."
                 )
             file_path = pyfd.call_file(
-                title="Select Point Cloud PLY File", filetypes=[("PLY files", "*.ply")]
+                title="Select Point Cloud PLY File",
+                filetypes=[("PLY files", "*.ply")],
             )
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
@@ -429,7 +442,7 @@ class PointCloud(GeometryBase):
     # %% Helper functions
     def __display_inlier_outlier__(
         self, pcd: o3d.geometry.PointCloud, ind: np.ndarray
-    ) -> NoReturn:
+    ) -> None:
         inlier_cloud = pcd.select_by_index(ind)
         outlier_cloud = pcd.select_by_index(ind, invert=True)
 
@@ -444,7 +457,7 @@ class PointCloud(GeometryBase):
 
     # %% Dunder methods
     @overrides
-    def __repr__(self) -> "PointCloud":
+    def __repr__(self) -> str:
         return f"PointCloud with {len(self.geometry.points)} points."
 
     @overrides

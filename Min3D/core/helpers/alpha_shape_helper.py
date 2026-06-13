@@ -4,7 +4,7 @@ import open3d as o3d
 import pymeshfix as pmf
 
 # tqdm for progress bars - automatically selects the right version for notebooks vs. terminal
-from IPython import get_ipython
+from IPython.core.getipython import get_ipython
 
 try:
     ipy_str = str(type(get_ipython()))

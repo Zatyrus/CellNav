@@ -1,6 +1,6 @@
 import open3d as o3d
-from dataclasses import dataclass
 from typing import List
+from dataclasses import dataclass
 
 
 @dataclass
