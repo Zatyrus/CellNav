@@ -2,10 +2,10 @@
 import numpy as np
 import open3d as o3d
 
-from typing import List, NoReturn
+from typing import Dict, List, Tuple, Union
 
 # tqdm for progress bars - automatically selects the right version for notebooks vs. terminal
-from IPython import get_ipython
+from IPython.core.getipython import get_ipython
 
 try:
     ipy_str = str(type(get_ipython()))
@@ -26,11 +26,11 @@ from Min3D.core.framework.unique_surface_wireframe import UniqueSurfaceWireframe
 
 ## main class implementation - Cell membrane extraction tool
 class GeometryTransformationTool:
-    def __init__(self) -> NoReturn:
+    def __init__(self) -> None:
         # run post init
         self.__post_init__()
 
-    def __post_init__(self) -> NoReturn:
+    def __post_init__(self) -> None:
         pass
 
     # %% Surface reconstruction - Point Cloud to Mesh
@@ -151,3 +151,21 @@ class GeometryTransformationTool:
     @staticmethod
     def unique_wireframe_from(wireframe: SurfaceWireframe) -> SurfaceWireframe:
         return UniqueSurfaceWireframe.from_wireframe(wireframe)
+
+    @staticmethod
+    def unpack_to_vertices_and_edges(
+        wireframe: SurfaceWireframe,
+    ) -> Tuple[PointCloud, Union[SurfaceWireframe, UniqueSurfaceWireframe]]:
+        return PointCloud.from_o3d(wireframe.geometry.points), wireframe
+
+    @staticmethod
+    def edge_length_LUT_from(
+        wireframe: UniqueSurfaceWireframe,
+    ) -> Dict[Tuple[int, int], float]:
+        edge_length_LUT: Dict[Tuple[int, int], float] = {}
+        for edge in wireframe.lines:
+            point1 = wireframe.points[edge[0]]
+            point2 = wireframe.points[edge[1]]
+            edge_length_LUT[(edge[0], edge[1])] = float(np.linalg.norm(point1 - point2))
+
+        return edge_length_LUT

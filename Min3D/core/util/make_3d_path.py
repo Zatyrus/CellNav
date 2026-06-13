@@ -1,7 +1,9 @@
 ## dependencies
+import matplotlib
 import numpy as np
 import open3d as o3d
-import matplotlib.pyplot as plt
+import matplotlib.cm
+import matplotlib.colors
 
 from typing import List, Union
 
@@ -16,7 +18,7 @@ __all__ = ["make_3d_path"]
 def make_3d_path(
     path: Union[np.ndarray, List[np.ndarray]],
     color: Union[np.ndarray, List[np.ndarray]],
-    cmap: str = "viridis",
+    cmap: Union[str, matplotlib.colors.Colormap] = "viridis",
     scale_factor: float = 1.0,
     magnitude: Union[str, float] = "auto",
 ) -> Path3D:
@@ -32,7 +34,7 @@ def make_3d_path(
 
     # select colormap
     if isinstance(cmap, str):
-        cmap = plt.colormaps[cmap]
+        cmap = matplotlib.colormaps[cmap]
 
     # color the wireframe
     if not (color.ndim == 1 and len(color) == 3) and not (
@@ -43,12 +45,12 @@ def make_3d_path(
         )
     if color.ndim == 1 and color.shape[0] == len(path):
         # apply colormap to the color array
-        norm = plt.Normalize(vmin=np.min(color), vmax=np.max(color))
-        color_array = cmap(norm(color))[:, :3]
+        norm = matplotlib.colors.Normalize(vmin=np.min(color), vmax=np.max(color))
+        rgb_array: np.ndarray = cmap(norm(color))[:, :3]
 
-    if magnitude == "auto":
+    if isinstance(magnitude, str) and magnitude == "auto":
         magnitude = __estimate_magnitude_scaler__(path, scale_adjust=-2)
-    scale = magnitude * scale_factor
+    scale = float(magnitude) * scale_factor
 
     # create lineset for the path
     path_edges = [(i, i + 1) for i in range(len(path) - 1)]
@@ -56,23 +58,32 @@ def make_3d_path(
 
     # create spheres for the start and end nodes
     start_sphere = GeoShapeHelper.generate_icosahedron_on_point(
-        path[0], radius=3 * scale, color=color_array[0], make_line=False
+        path[0],
+        radius=3 * scale,
+        color=rgb_array[0],  # type: ignore
+        make_line=False,
     )
     end_sphere = GeoShapeHelper.generate_tetrahedron_on_point(
-        path[-1], radius=3 * scale, color=color_array[-1], make_line=False
+        path[-1],
+        radius=3 * scale,
+        color=rgb_array[-1],  # type: ignore
+        make_line=False,
     )
 
     # add smaller spheres for the intermediate nodes in the path
     intermediate_nodes = []
     for node in range(1, len(path) - 1):
         sphere = GeoShapeHelper.generate_sphere_on_point(
-            path[node], radius=2 * scale, color=color_array[node], make_line=False
+            path[node],
+            radius=2 * scale,
+            color=rgb_array[node],  # type: ignore
+            make_line=False,
         )  # red for intermediate nodes
         intermediate_nodes.append(sphere)
 
     # color the path lineset
     path_lineset.colors = o3d.utility.Vector3dVector(
-        [color_array[i] for i in range(len(path_lineset.lines))]
+        [rgb_array[i] for i in range(len(path_lineset.lines))]  # type: ignore
     )
 
     # return the 3D path container

@@ -1,8 +1,9 @@
 # dependencies
 import numpy as np
+from typing import Union
+import matplotlib.figure
 from PltStyler import PltStyler
 import matplotlib.pyplot as plt
-from typing import NoReturn, Union
 
 __all__ = ["time_complexity_overview"]
 
@@ -10,7 +11,7 @@ __all__ = ["time_complexity_overview"]
 # %% Time complexity functions for shortest path algorithms
 def time_complexity_overview(
     max_V: int = 20000, max_E: int = 20000, return_fig: bool = False
-) -> Union[plt.Figure, NoReturn]:
+) -> Union[matplotlib.figure.Figure, None]:
     # stylesheet for plotting
     PltStyler().set_stylesheet("bright").set_font(size=11).apply()
 

@@ -3,8 +3,8 @@ import os
 import sys
 import numpy as np
 import open3d as o3d
+from typing import Union
 from overrides import overrides
-from typing import NoReturn, Union
 
 if sys.platform.startswith("win"):
     import PyFileDialogue as pyfd
@@ -18,10 +18,10 @@ from Min3D.core.helpers.alpha_shape_helper import AlphaShapeHelper
 
 ## main class implementation - Cell membrane extraction tool
 class SurfaceMesh(GeometryBase):
-    def __init__(self, geometry: o3d.geometry.TriangleMesh, **kwargs) -> NoReturn:
+    def __init__(self, geometry: o3d.geometry.TriangleMesh, **kwargs) -> None:
         super().__init__(geometry=geometry, **kwargs)
 
-    def __post_init__(self) -> NoReturn:
+    def __post_init__(self) -> None:
         pass
 
     # %% Classmethods
@@ -34,7 +34,8 @@ class SurfaceMesh(GeometryBase):
                     "File dialog is only supported on Windows. Please provide a file path."
                 )
             file_path = pyfd.call_file(
-                title="Select Surface Mesh PLY File", filetypes=[("PLY files", "*.ply")]
+                title="Select Surface Mesh PLY File",
+                filetypes=[("PLY files", "*.ply")],
             )
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
@@ -71,7 +72,7 @@ class SurfaceMesh(GeometryBase):
     # %% Transformations
     def decimate_mesh(
         self, target_number_of_triangles: int, inplace: bool = True
-    ) -> Union["SurfaceMesh", NoReturn]:
+    ) -> Union["SurfaceMesh", None]:
         decimated_mesh = self.geometry.simplify_quadric_decimation(
             target_number_of_triangles=target_number_of_triangles
         )
@@ -92,7 +93,7 @@ class SurfaceMesh(GeometryBase):
 
     def subdivide_mesh(
         self, number_of_iterations: int, inplace: bool = True
-    ) -> Union["SurfaceMesh", NoReturn]:
+    ) -> Union["SurfaceMesh", None]:
         subdivided_mesh = self.geometry.subdivide_midpoint(
             number_of_iterations=number_of_iterations
         )
@@ -115,7 +116,7 @@ class SurfaceMesh(GeometryBase):
     def check_watertight(self) -> bool:
         return AlphaShapeHelper.check_watertight(self.geometry)
 
-    def clean_mesh(self, inplace: bool = True) -> Union["SurfaceMesh", NoReturn]:
+    def clean_mesh(self, inplace: bool = True) -> "SurfaceMesh":
         cleaned_mesh = AlphaShapeHelper.clean_mesh(self.geometry)
         if inplace:
             self.geometry = cleaned_mesh
@@ -125,7 +126,7 @@ class SurfaceMesh(GeometryBase):
 
     def cluster_mesh(
         self, cluster_by: str = "area", inplace: bool = True
-    ) -> Union["SurfaceMesh", NoReturn]:
+    ) -> "SurfaceMesh":
         clustered_mesh = AlphaShapeHelper.cluster_mesh(
             self.geometry, cluster_by=cluster_by
         )
@@ -135,7 +136,7 @@ class SurfaceMesh(GeometryBase):
         else:
             return SurfaceMesh.from_o3d(clustered_mesh)
 
-    def repair_mesh(self, inplace: bool = True) -> Union["SurfaceMesh", NoReturn]:
+    def repair_mesh(self, inplace: bool = True) -> "SurfaceMesh":
         repaired_mesh = AlphaShapeHelper.repair_mesh(self.geometry)
         if inplace:
             self.geometry = repaired_mesh
@@ -145,7 +146,7 @@ class SurfaceMesh(GeometryBase):
 
     def make_watertight(
         self, cluster_by: str = "area", inplace: bool = True
-    ) -> Union["SurfaceMesh", NoReturn]:
+    ) -> "SurfaceMesh":
         watertight_mesh = AlphaShapeHelper.make_watertight(
             self.geometry, cluster_by=cluster_by
         )
@@ -157,7 +158,7 @@ class SurfaceMesh(GeometryBase):
 
     def clean_and_cluster(
         self, cluster_by: str = "area", inplace: bool = True
-    ) -> Union["SurfaceMesh", NoReturn]:
+    ) -> "SurfaceMesh":
         cleaned_and_clustered_mesh = self.clean_mesh(inplace=False).cluster_mesh(
             cluster_by=cluster_by, inplace=False
         )
@@ -169,7 +170,7 @@ class SurfaceMesh(GeometryBase):
 
     # %% IO
     @overrides
-    def save(self, file_path: Union[str, None] = None) -> NoReturn:
+    def save(self, file_path: Union[str, None] = None) -> None:
         if file_path is None or not os.path.isdir(os.path.dirname(file_path)):
             if pyfd is None:
                 raise RuntimeError(
@@ -187,14 +188,15 @@ class SurfaceMesh(GeometryBase):
         o3d.io.write_triangle_mesh(file_path, self.geometry)
 
     @overrides
-    def load(self, file_path: Union[str, None] = None) -> NoReturn:
+    def load(self, file_path: Union[str, None] = None) -> None:
         if file_path is None or not os.path.isfile(file_path):
             if pyfd is None:
                 raise RuntimeError(
                     "File dialog is only supported on Windows. Please provide a file path."
                 )
             file_path = pyfd.call_file(
-                title="Select Surface Mesh PLY File", filetypes=[("PLY files", "*.ply")]
+                title="Select Surface Mesh PLY File",
+                filetypes=[("PLY files", "*.ply")],
             )
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
@@ -203,7 +205,7 @@ class SurfaceMesh(GeometryBase):
 
     # %% Dunder methods
     @overrides
-    def __repr__(self) -> "SurfaceMesh":
+    def __repr__(self) -> str:
         return f"SurfaceMesh with {len(self.geometry.vertices)} vertices and {len(self.geometry.triangles)} triangles.\nThe mesh is {'watertight' if self.check_watertight() else 'not watertight'}."
 
     @overrides

@@ -3,7 +3,6 @@ import numpy as np
 import open3d as o3d
 from copy import copy
 
-from typing import NoReturn
 
 ## custom dependencies
 from Min3D.core.framework.surface_graph import SurfaceGraph
@@ -15,7 +14,7 @@ __all__ = ["shortest_path_interactive"]
 # %% Visualization functions
 def shortest_path_interactive(
     graph: SurfaceGraph, start_node: int, end_node: int
-) -> NoReturn:
+) -> None:
     ## generate 3D visualization with open 3d linesets
     # select base wireframe for visualization
     wireframe = copy(graph.edges)
@@ -53,7 +52,7 @@ def shortest_path_interactive(
     )
 
     # visualize the base wireframe and the path lineset together
-    o3d.visualization.draw_geometries(
+    o3d.visualization.draw_geometries(  # type: ignore
         [path_lineset, wireframe.geometry, start_sphere, end_sphere]
         + intermediate_nodes,
         window_name=f"Shortest Path from Node {start_node} to Node {end_node}",

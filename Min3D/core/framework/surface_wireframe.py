@@ -3,8 +3,8 @@ import os
 import sys
 import numpy as np
 import open3d as o3d
+from typing import Union
 from overrides import overrides
-from typing import NoReturn, Union
 
 if sys.platform.startswith("win"):
     import PyFileDialogue as pyfd
@@ -17,7 +17,7 @@ from Min3D.core.containers.geometry_base import GeometryBase
 
 ## main class implementation - Cell membrane extraction tool
 class SurfaceWireframe(GeometryBase):
-    def __init__(self, geometry: o3d.geometry.LineSet, **kwargs) -> NoReturn:
+    def __init__(self, geometry: o3d.geometry.LineSet, **kwargs) -> None:
         super().__init__(geometry=geometry, **kwargs)
 
     # %% Classmethods
@@ -61,7 +61,7 @@ class SurfaceWireframe(GeometryBase):
 
     # %% IO
     @overrides
-    def save(self, file_path: Union[str, None] = None) -> NoReturn:
+    def save(self, file_path: Union[str, None] = None) -> None:
         if file_path is None or not os.path.isdir(os.path.dirname(file_path)):
             if pyfd is None:
                 raise RuntimeError(
@@ -79,7 +79,7 @@ class SurfaceWireframe(GeometryBase):
         o3d.io.write_line_set(file_path, self.geometry)
 
     @overrides
-    def load(self, file_path: Union[str, None] = None) -> NoReturn:
+    def load(self, file_path: Union[str, None] = None) -> None:
         if file_path is None or not os.path.isfile(file_path):
             if pyfd is None:
                 raise RuntimeError(
