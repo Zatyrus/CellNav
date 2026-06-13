@@ -9,7 +9,7 @@ __all_ = ["distance_from_axis"]
 
 
 ## get distance from central axis
-def distance_from_axis(
+def distance_from_line(
     point_cloud: PointCloud,
     axis_point: Union[Tuple[float, float, float], np.ndarray, List[float]] = (0, 0, 0),
     axis_direction: Union[Tuple[float, float, float], np.ndarray, List[float]] = (
