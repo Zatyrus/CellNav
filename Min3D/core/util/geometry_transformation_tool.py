@@ -2,7 +2,7 @@
 import numpy as np
 import open3d as o3d
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 # tqdm for progress bars - automatically selects the right version for notebooks vs. terminal
 from IPython.core.getipython import get_ipython
@@ -154,12 +154,6 @@ class GeometryTransformationTool:
     @staticmethod
     def unique_wireframe_from(wireframe: SurfaceWireframe) -> SurfaceWireframe:
         return UniqueSurfaceWireframe.from_wireframe(wireframe)
-
-    @staticmethod
-    def unpack_to_vertices_and_edges(
-        wireframe: SurfaceWireframe,
-    ) -> Tuple[PointCloud, Union[SurfaceWireframe, UniqueSurfaceWireframe]]:
-        return PointCloud.from_o3d(wireframe.geometry.points), wireframe
 
     @staticmethod
     def edge_length_LUT_from(
