@@ -13,6 +13,17 @@ def generate_sphere(
     radius: float,
     num_points: int = 1000,
 ) -> PointCloud:
+    """Generate a point cloud representing a sphere with a given center, radius, and number of points.
+
+    Args:
+        center (Union[np.ndarray, Tuple[float, float, float], List[float]]): The center of the sphere.
+        radius (float): The radius of the sphere.
+        num_points (int, optional): The number of points to generate on the sphere's surface. Defaults to 1000.
+
+    Returns:
+        PointCloud: A point cloud representing the sphere.
+    """
+    
     # Generate random points on the surface of a sphere
     phi = np.random.uniform(0, 2 * np.pi, num_points)
 

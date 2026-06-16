@@ -17,8 +17,20 @@ __all__ = ["shortest_path_mpl"]
 def shortest_path_mpl(
     graph: SurfaceGraph, start_node: int, end_node: int, return_figure: bool = True
 ) -> Union[matplotlib.figure.Figure, None]:
+    """Visualize the shortest path between two nodes in a surface graph using Matplotlib.
+    This is based on the `mpl_draw` function from Rustworkx, which is a wrapper around Matplotlib for visualizing graphs.
 
-    if not __check_plot_feasibility__(graph):
+    Args:
+        graph (SurfaceGraph): The surface graph containing the nodes and edges.
+        start_node (int): The node from which to start the path.
+        end_node (int): The node at which to end the path.
+        return_figure (bool, optional): Whether to return the matplotlib figure. Defaults to True.
+
+    Returns:
+        Union[matplotlib.figure.Figure, None]: The matplotlib figure if `return_figure` is True, otherwise None.
+    """
+
+    if not check_feasibility(graph):
         return None
 
     # stylesheet for plotting
@@ -70,15 +82,16 @@ def shortest_path_mpl(
 
 
 # %% Helper functions
-def __estimate_magnitude_scaler__(graph: SurfaceGraph, scale_adjust: int = -2) -> float:
-    return np.power(
-        10,
-        np.floor(np.log10(np.diff(graph.vertices.get_points(), axis=0).max()))
-        + scale_adjust,
-    )
+def check_feasibility(graph: SurfaceGraph) -> bool:
+    """Check if the graph is suitable for visualization with Matplotlib. 
+    If the graph has too many nodes, it may not be effectively visualized.
 
+    Args:
+        graph (SurfaceGraph): The surface graph to check.
 
-def __check_plot_feasibility__(graph: SurfaceGraph) -> bool:
+    Returns:
+        bool: True if the graph is suitable for visualization, False otherwise.
+    """
     if graph.graph.num_nodes() > 1000:
         print(
             f"Graph has {graph.graph.num_nodes()} nodes, which may be too large for effective visualization. Consider using a smaller graph or visualizing a subgraph."

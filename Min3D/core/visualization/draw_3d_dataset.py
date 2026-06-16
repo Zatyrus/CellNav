@@ -18,6 +18,19 @@ def draw_3d_dataset(
     scale_factor: float = 1.0,
     magnitude: Union[str, float] = "auto",
 ) -> None:
+    """Draw multiple 3D paths using open3d visualization. Each path is visualized as a lineset connecting (point)-meshes, with optional coloring and scaling.
+
+    Args:
+        paths (List[Union[np.ndarray, List[np.ndarray]]]): The 3D paths to visualize.
+        colors (List[Union[np.ndarray, List[np.ndarray]]]): The colors for the paths.
+        cmap (str, optional): The colormap for the paths. Defaults to "viridis".
+        scale_factor (float, optional): The scale factor for the paths. Defaults to 1.0.
+        magnitude (Union[str, float], optional): The magnitude for the paths. Defaults to "auto".
+        
+    Returns:
+        None: This function does not return anything. It opens an interactive visualization window. 
+    """
+    
     ## generate path3D objects from the paths and colors
     path_3ds = [
         make_3d_path(

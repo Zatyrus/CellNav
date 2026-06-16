@@ -21,6 +21,24 @@ def make_3d_path(
     scale_factor: float = 1.0,
     magnitude: Union[str, float] = "auto",
 ) -> Path3D:
+    """
+    Build a Path3D object for visualization based on the given 3D path and color information. 
+    The path is visualized as a lineset connecting (point)-meshes, with optional coloring and scaling.
+
+    Args:
+        path (Union[np.ndarray, List[np.ndarray]]): The 3D path to visualize, either as a numpy array of shape (N, 3) or a list of 3D points.
+        color (Union[np.ndarray, List[np.ndarray]]): The colors for the path.
+        cmap (Union[str, matplotlib.colors.Colormap], optional): The colormap for the path. Defaults to "viridis".
+        scale_factor (float, optional): The scale factor for the path. Defaults to 1.0.
+        magnitude (Union[str, float], optional): The magnitude for the path. Defaults to "auto".
+
+    Raises:
+        ValueError: If the color array has an invalid shape.
+
+    Returns:
+        Path3D: The constructed 3D path object.
+    """
+    
     ## generate 3D visualization with open 3d linesets
 
     # convert path to numpy array if it's a list of points
@@ -48,7 +66,7 @@ def make_3d_path(
         rgb_array: np.ndarray = cmap(norm(color))[:, :3]
 
     if isinstance(magnitude, str) and magnitude == "auto":
-        magnitude = __estimate_magnitude_scaler__(path, scale_adjust=-2)
+        magnitude = estimate_magnitude(path, scale_adjust=-2)
     scale = float(magnitude) * scale_factor
 
     # create lineset for the path
@@ -95,5 +113,14 @@ def make_3d_path(
 
 
 # %% Helper functions
-def __estimate_magnitude_scaler__(path: np.ndarray, scale_adjust: int = -2) -> float:
+def estimate_magnitude(path: np.ndarray, scale_adjust: int = -2) -> float:
+    """Estimate the magnitude for visualization based on the maximum distance between points in the path.
+
+    Args:
+        path (np.ndarray): The 3D path for which to estimate the magnitude.
+        scale_adjust (int, optional): The adjustment factor for the scale. Defaults to -2.
+
+    Returns:
+        float: The estimated magnitude for visualization.
+    """
     return np.power(10, np.floor(np.log10(np.diff(path, axis=0).max())) + scale_adjust)

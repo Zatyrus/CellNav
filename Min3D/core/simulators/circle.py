@@ -13,6 +13,18 @@ def generate_circle(
     radius: float,
     num_points: int = 1000,
 ) -> PointCloud:
+    """Generate a point cloud representing a circle with a given center, radius, and number of points.
+
+    Raises:
+        ValueError: If the radius is not positive.
+
+    Returns:
+        _type_: A point cloud representing the circle.
+    """
+    
+    if radius <= 0:
+        raise ValueError("radius must be positive")
+    
     # Generate random points on the circumference of a circle
     phi = np.random.uniform(0, 2 * np.pi, num_points)
 

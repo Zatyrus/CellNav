@@ -13,6 +13,25 @@ def generate_ellipsoid(
     radii: Union[np.ndarray, Tuple[float, float, float], List[float]],
     num_points: int = 1000,
 ) -> PointCloud:
+    """
+    Generate a point cloud representing an ellipsoid, which is created by sampling points from the surface of an
+    ellipsoid defined by a center and radii along the x, y, and z axes. The number of points in the ellipsoid can be specified.
+
+    Args:
+        center (Union[np.ndarray, Tuple[float, float, float], List[float]]): The center of the ellipsoid.
+        radii (Union[np.ndarray, Tuple[float, float, float], List[float]]): The radii of the ellipsoid along the x, y, and z axes.
+        num_points (int, optional): The number of points to generate on the surface of the ellipsoid. Defaults to 1000.
+
+    Raises:
+        ValueError: If any of the radii are not positive.
+
+    Returns:
+        PointCloud: A point cloud representing the ellipsoid.
+    """
+    
+    if any(r <= 0 for r in radii):
+        raise ValueError("All radii must be positive")
+    
     # Generate random points on the surface of an ellipsoid
     phi = np.random.uniform(0, 2 * np.pi, num_points)
     arc_cos = np.random.uniform(

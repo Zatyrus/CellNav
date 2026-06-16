@@ -13,6 +13,25 @@ def generate_cube(
     side_length: float,
     num_points: int = 1000,
 ) -> PointCloud:
+    """
+    Generate a point cloud representing a cube, which is created by sampling points from the surface of a cube defined by a center and a side length. 
+    The number of points in the cube can be specified.
+
+    Args:
+        center (Union[np.ndarray, Tuple[float, float, float], List[float]]): The center of the cube.
+        side_length (float): The length of each side of the cube.
+        num_points (int, optional): The number of points to generate. Defaults to 1000.
+
+    Raises:
+        ValueError: If the side_length is not positive.
+
+    Returns:
+        PointCloud: A point cloud representing the cube.
+    """
+    
+    if side_length <= 0:
+        raise ValueError("side_length must be positive")
+
     # Generate random points on the surface of a cube
     half_side = side_length / 2
     points = []

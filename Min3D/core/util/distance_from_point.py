@@ -12,16 +12,16 @@ def distance_from_point(
     point_cloud: PointCloud,
     point: Union[Tuple[float, float, float], np.ndarray, List[float]],
 ) -> np.ndarray:
-    """
-    Calculate the distance from a given point to each point in the point cloud.
+    """Calculate the distance from a given point to each point in a point cloud.
 
-    Parameters:
-    - point_cloud: A PointCloud object containing the points.
-    - point: A 3D point (x, y, z) to which distances will be calculated.
+    Args:
+        point_cloud (PointCloud): The point cloud from which to calculate distances.
+        point (Union[Tuple[float, float, float], np.ndarray, List[float]]): A point (x, y, z) to which to calculate distances.
 
     Returns:
-    - distances: A numpy array of distances from the given point to each point in the point cloud.
+        np.ndarray: A numpy array of distances from the given point to each point in the point cloud.
     """
+
     # Get the points from the PointCloud object
     points = point_cloud.get_points()
 

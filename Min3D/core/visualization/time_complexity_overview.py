@@ -10,8 +10,22 @@ __all__ = ["time_complexity_overview"]
 
 # %% Time complexity functions for shortest path algorithms
 def time_complexity_overview(
-    max_V: int = 20000, max_E: int = 20000, return_fig: bool = False
+    max_V: int = 5000, max_E: int = 5000, return_fig: bool = False
 ) -> Union[matplotlib.figure.Figure, None]:
+    """
+    A utility function to visualize the time complexity of different shortest path algorithms 
+    (Dijkstra, Bellman-Ford, Floyd-Warshall, A*) as a function of the number of vertices (V) and edges (E) in a graph.
+
+    Args:
+        max_V (int, optional): The maximum number of vertices in the graph. Defaults to 5000.
+        max_E (int, optional): The maximum number of edges in the graph. Defaults to 5000.
+        return_fig (bool, optional): Whether to return the matplotlib figure. Defaults to False.
+
+    Returns:
+        Union[matplotlib.figure.Figure, None]: The matplotlib figure object if return_fig is True, otherwise None.
+    """
+    
+    
     # stylesheet for plotting
     PltStyler().set_stylesheet("bright").set_font(size=11).apply()
 
@@ -78,16 +92,52 @@ def time_complexity_overview(
 
 
 def dijkstra_time_complexity(E: float, V: float) -> float:
+    """Calculate the time complexity (big-O) of Dijkstra's algorithm given the number of edges (E) and vertices (V) in the graph.
+
+    Args:
+        E (float): The number of edges in the graph.
+        V (float): The number of vertices in the graph.
+
+    Returns:
+        float: The time complexity of Dijkstra's algorithm.
+    """
     return E + V * np.log(V)
 
 
 def bellman_ford_time_complexity(E: float, V: float) -> float:
+    """Calculate the time complexity (big-O) of Bellman-Ford algorithm given the number of edges (E) and vertices (V) in the graph.
+
+    Args:
+        E (float): The number of edges in the graph.
+        V (float): The number of vertices in the graph.
+
+    Returns:
+        float: The time complexity of Bellman-Ford algorithm.
+    """
     return V * E
 
 
 def floyd_warshall_time_complexity(E: float, V: float) -> float:
+    """Calculate the time complexity (big-O) of Floyd-Warshall algorithm given the number of edges (E) and vertices (V) in the graph.
+
+    Args:
+        E (float): The number of edges in the graph.
+        V (float): The number of vertices in the graph.
+
+    Returns:
+        float: The time complexity of Floyd-Warshall algorithm.
+    """
     return V**3
 
 
 def astar_time_complexity(E: float, V: float) -> float:
+    """Calculate the time complexity (big-O) of A* algorithm given the number of edges (E) and vertices (V) in the graph.
+
+    Args:
+        E (float): The number of edges in the graph.
+        V (float): The number of vertices in the graph.
+
+    Returns:
+        float: The time complexity of A* algorithm.
+    """
     return E * np.log(V)

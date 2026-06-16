@@ -5,7 +5,7 @@ from typing import Tuple, Union, List
 ## custom dependencies
 from Min3D.core.framework.point_cloud import PointCloud
 
-__all_ = ["distance_from_axis"]
+__all_ = ["distance_from_line"]
 
 
 ## get distance from central axis
@@ -19,16 +19,19 @@ def distance_from_line(
     ),
 ) -> np.ndarray:
     """
-    Calculate the distance of each point from a specified axis defined by a point and a direction vector.
+    Calculate the distance from a given point cloud to a line defined by a point and a direction vector. 
+    The line is defined by an axis point and an axis direction vector. 
+    The distance is calculated as the shortest distance from each point in the point cloud to the line.
 
-    Parameters:
-    - point_cloud: A PointCloud object containing the points.
-    - axis_point: A tuple representing a point on the axis (default is the origin).
-    - axis_direction: A tuple representing the direction vector of the axis (default is along the z-axis).
+    Args:
+        point_cloud (PointCloud): The point cloud from which to calculate distances.
+        axis_point (Union[Tuple[float, float, float], np.ndarray, List[float]], optional): A point on the line. Defaults to (0, 0, 0).
+        axis_direction (Union[Tuple[float, float, float], np.ndarray, List[float]], optional): The direction vector of the line. Defaults to (0, 0, 1).
 
     Returns:
-    - distances: A numpy array of shape (N,) containing the distance of each point from the axis.
+        np.ndarray: An array of distances from each point in the point cloud to the line.
     """
+
     # Convert inputs to numpy arrays
     points = point_cloud.get_points()
     axis_point = np.array(axis_point)

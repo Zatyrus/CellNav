@@ -13,11 +13,22 @@ __all__ = ["shortest_path_interactive"]
 
 # %% Visualization functions
 def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int) -> None:
+    """Spin up an interactive visualization of the shortest path between source and target nodes in the given surface graph.
+
+    Args:
+        graph (SurfaceGraph): The surface graph containing the nodes and edges.
+        source (int): The node from which to start the path.
+        target (int): The node at which to end the path.
+        
+    Returns:
+        None: This function does not return anything. It opens an interactive visualization window.
+    """
+    
     ## generate 3D visualization with open 3d linesets
     # select base wireframe for visualization
     wireframe = copy(graph.edges)
     path = graph.get_shortest_path(source, target)
-    approximate_scaler = __estimate_magnitude_scaler__(graph, scale_adjust=-2)
+    approximate_scaler = estimate_magnitude(graph, scale_adjust=-2)
 
     # create lineset for the path
     path_edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
@@ -58,7 +69,17 @@ def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int) -> 
 
 
 # %% Helper functions
-def __estimate_magnitude_scaler__(graph: SurfaceGraph, scale_adjust: int = -2) -> float:
+def estimate_magnitude(graph: SurfaceGraph, scale_adjust: int = -2) -> float:
+    """Estimate the magnitude scaler for visualization based on the maximum distance between vertices in the graph. 
+    This helps to set an appropriate scale for visual elements like spheres and lines in the 3D visualization.
+
+    Args:
+        graph (SurfaceGraph): The surface graph for which to estimate the magnitude scaler.
+        scale_adjust (int, optional): The adjustment factor for the scale. Defaults to -2.
+
+    Returns:
+        float: The estimated magnitude scaler.
+    """
     return np.power(
         10,
         np.floor(np.log10(np.diff(graph.vertices.get_points(), axis=0).max()))
