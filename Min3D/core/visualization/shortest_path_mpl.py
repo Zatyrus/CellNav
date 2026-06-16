@@ -83,7 +83,7 @@ def shortest_path_mpl(
 
 # %% Helper functions
 def check_feasibility(graph: SurfaceGraph) -> bool:
-    """Check if the graph is suitable for visualization with Matplotlib. 
+    """Check if the graph is suitable for visualization with Matplotlib.
     If the graph has too many nodes, it may not be effectively visualized.
 
     Args:

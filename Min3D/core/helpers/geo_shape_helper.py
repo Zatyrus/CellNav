@@ -25,7 +25,7 @@ class GeoShapeHelper:
         Returns:
             o3d.geometry.LineSet: The generated LineSet.
         """
-        
+
         line_set = o3d.geometry.LineSet()
         line_set.points = (
             o3d.utility.Vector3dVector(points)
@@ -69,11 +69,11 @@ class GeoShapeHelper:
         color: Union[List[int], np.ndarray] = [1, 0, 0],
         resolution: int = 10,
         make_line: bool = False,
-    ) ->Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
+    ) -> Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
         """
         Generate a sphere on a given point with a specified radius, color, resolution, and an option to make it a line set.
-        Making it a line set will create a wireframe representation of the sphere. 
-        
+        Making it a line set will create a wireframe representation of the sphere.
+
         This can be useful for visualizing the structure of the sphere without rendering it as a solid object.
         Will be easier on the GPU when rendering many spheres, as it will reduce the number of triangles to render.
 
@@ -102,11 +102,11 @@ class GeoShapeHelper:
         radius: float = 10e-9,
         color: Union[List[int], np.ndarray] = [1, 0, 0],
         make_line: bool = False,
-    ) ->Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
+    ) -> Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
         """
         Generate an octahedron on a given point with a specified radius, color, and an option to make it a line set.
         Making it a line set will create a wireframe representation of the octahedron.
-        
+
         This can be useful for visualizing the structure of the octahedron without rendering it as a solid object.
         Will be easier on the GPU when rendering many octahedrons, as it will reduce the number of triangles to render.
 
@@ -132,11 +132,11 @@ class GeoShapeHelper:
         size: float = 10e-9,
         color: Union[List[int], np.ndarray] = [1, 0, 0],
         make_line: bool = False,
-    ) ->Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
+    ) -> Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
         """
         Generate a cube on a given point with a specified size, color, and an option to make it a line set.
         Making it a line set will create a wireframe representation of the cube.
-        
+
         This can be useful for visualizing the structure of the cube without rendering it as a solid object.
         Will be easier on the GPU when rendering many cubes, as it will reduce the number of triangles to render.
 
@@ -163,11 +163,11 @@ class GeoShapeHelper:
         height: float = 10e-9,
         color: Union[List[int], np.ndarray] = [1, 0, 0],
         make_line: bool = False,
-    ) ->Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
+    ) -> Union[o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
         """
         Generate a cylinder on a given point with a specified radius, height, color, and an option to make it a line set.
         Making it a line set will create a wireframe representation of the cylinder.
-        
+
         This can be useful for visualizing the structure of the cylinder without rendering it as a solid object.
         Will be easier on the GPU when rendering many cylinders, as it will reduce the number of triangles to render.
 
@@ -200,7 +200,7 @@ class GeoShapeHelper:
         """
         Generate an icosahedron on a given point with a specified radius, color, and an option to make it a line set.
         Making it a line set will create a wireframe representation of the icosahedron.
-        
+
         This can be useful for visualizing the structure of the icosahedron without rendering it as a solid object.
         Will be easier on the GPU when rendering many icosahedrons, as it will reduce the number of triangles to render.
 
@@ -230,7 +230,7 @@ class GeoShapeHelper:
         """
         Generate a tetrahedron on a given point with a specified radius, color, and an option to make it a line set.
         Making it a line set will create a wireframe representation of the tetrahedron.
-        
+
         This can be useful for visualizing the structure of the tetrahedron without rendering it as a solid object.
         Will be easier on the GPU when rendering many tetrahedrons, as it will reduce the number of triangles to render.
 

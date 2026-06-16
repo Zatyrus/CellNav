@@ -26,11 +26,11 @@ def draw_3d_dataset(
         cmap (str, optional): The colormap for the paths. Defaults to "viridis".
         scale_factor (float, optional): The scale factor for the paths. Defaults to 1.0.
         magnitude (Union[str, float], optional): The magnitude for the paths. Defaults to "auto".
-        
+
     Returns:
-        None: This function does not return anything. It opens an interactive visualization window. 
+        None: This function does not return anything. It opens an interactive visualization window.
     """
-    
+
     ## generate path3D objects from the paths and colors
     path_3ds = [
         make_3d_path(

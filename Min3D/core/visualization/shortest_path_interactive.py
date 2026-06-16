@@ -19,11 +19,11 @@ def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int) -> 
         graph (SurfaceGraph): The surface graph containing the nodes and edges.
         source (int): The node from which to start the path.
         target (int): The node at which to end the path.
-        
+
     Returns:
         None: This function does not return anything. It opens an interactive visualization window.
     """
-    
+
     ## generate 3D visualization with open 3d linesets
     # select base wireframe for visualization
     wireframe = copy(graph.edges)
@@ -70,7 +70,7 @@ def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int) -> 
 
 # %% Helper functions
 def estimate_magnitude(graph: SurfaceGraph, scale_adjust: int = -2) -> float:
-    """Estimate the magnitude scaler for visualization based on the maximum distance between vertices in the graph. 
+    """Estimate the magnitude scaler for visualization based on the maximum distance between vertices in the graph.
     This helps to set an appropriate scale for visual elements like spheres and lines in the 3D visualization.
 
     Args:

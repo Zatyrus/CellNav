@@ -21,10 +21,10 @@ def generate_circle(
     Returns:
         _type_: A point cloud representing the circle.
     """
-    
+
     if radius <= 0:
         raise ValueError("radius must be positive")
-    
+
     # Generate random points on the circumference of a circle
     phi = np.random.uniform(0, 2 * np.pi, num_points)
 

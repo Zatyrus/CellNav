@@ -17,7 +17,7 @@ def generate_cylinder(
     face_to_surface_ratio: Tuple[float, float] = (0.30, 0.70),
 ) -> PointCloud:
     """
-    Generate a point cloud representing a cylinder with a given center, radius, height, and number of points. 
+    Generate a point cloud representing a cylinder with a given center, radius, height, and number of points.
     The cylinder can be generated with or without faces, and the ratio of points on the faces to points
 
     Args:
@@ -38,10 +38,10 @@ def generate_cylinder(
     """
     if radius <= 0:
         raise ValueError("radius must be positive")
-    
+
     if height <= 0:
         raise ValueError("height must be positive")
-    
+
     # Generate random points on the surface of a cylinder
     if no_faces:
         phi = np.random.uniform(0, 2 * np.pi, num_points)

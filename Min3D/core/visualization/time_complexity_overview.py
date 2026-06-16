@@ -13,7 +13,7 @@ def time_complexity_overview(
     max_V: int = 5000, max_E: int = 5000, return_fig: bool = False
 ) -> Union[matplotlib.figure.Figure, None]:
     """
-    A utility function to visualize the time complexity of different shortest path algorithms 
+    A utility function to visualize the time complexity of different shortest path algorithms
     (Dijkstra, Bellman-Ford, Floyd-Warshall, A*) as a function of the number of vertices (V) and edges (E) in a graph.
 
     Args:
@@ -24,8 +24,7 @@ def time_complexity_overview(
     Returns:
         Union[matplotlib.figure.Figure, None]: The matplotlib figure object if return_fig is True, otherwise None.
     """
-    
-    
+
     # stylesheet for plotting
     PltStyler().set_stylesheet("bright").set_font(size=11).apply()
 

@@ -12,7 +12,7 @@ def add_gaussian_noise(
     sigma: float,
 ) -> PointCloud:
     """
-    Add Gaussian noise to a given point cloud object. 
+    Add Gaussian noise to a given point cloud object.
     The noise is generated with a mean of 0 and a standard deviation of sigma, and is added to each point in the point cloud.
     This is similar to pushing the points in the point cloud in random directions, with the magnitude of the push determined by the standard deviation of the noise.
 
@@ -26,10 +26,10 @@ def add_gaussian_noise(
     Returns:
         PointCloud: A new point cloud with Gaussian noise added.
     """
-    
+
     if sigma < 0:
         raise ValueError("sigma must be non-negative")
-    
+
     # Get the points from the PointCloud object
     points = point_cloud.get_points()
 

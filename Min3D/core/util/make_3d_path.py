@@ -22,7 +22,7 @@ def make_3d_path(
     magnitude: Union[str, float] = "auto",
 ) -> Path3D:
     """
-    Build a Path3D object for visualization based on the given 3D path and color information. 
+    Build a Path3D object for visualization based on the given 3D path and color information.
     The path is visualized as a lineset connecting (point)-meshes, with optional coloring and scaling.
 
     Args:
@@ -38,7 +38,7 @@ def make_3d_path(
     Returns:
         Path3D: The constructed 3D path object.
     """
-    
+
     ## generate 3D visualization with open 3d linesets
 
     # convert path to numpy array if it's a list of points

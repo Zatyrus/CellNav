@@ -16,8 +16,8 @@ def generate_gaussian_corona(
     num_points: int = 1000,
 ) -> PointCloud:
     """
-    Generate a point cloud representing a Gaussian corona, which is created by adding Gaussian noise to points on the surface of a sphere. 
-    The sphere is defined by a center and a radius, and the noise is defined by a standard deviation (sigma). 
+    Generate a point cloud representing a Gaussian corona, which is created by adding Gaussian noise to points on the surface of a sphere.
+    The sphere is defined by a center and a radius, and the noise is defined by a standard deviation (sigma).
     The number of points in the corona can be specified.
 
     Args:
@@ -33,13 +33,13 @@ def generate_gaussian_corona(
     Returns:
         PointCloud: A point cloud representing the Gaussian corona.
     """
-    
+
     if sigma < 0:
         raise ValueError("sigma must be non-negative")
-    
+
     if radius <= 0:
         raise ValueError("radius must be positive")
-    
+
     # generate points on the surface of a sphere
     sphere_points = generate_sphere(center, radius, num_points).get_points()
 

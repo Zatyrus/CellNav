@@ -30,6 +30,7 @@ __all_ = ["GeometryTransformationTool"]
 ## main class implementation - Cell membrane extraction tool
 class GeometryTransformationTool:
     """A utility class for transforming between different geometry representations (point clouds, meshes, wireframes) and performing various geometric transformations."""
+
     def __init__(self) -> None:
         pass
 
@@ -75,7 +76,7 @@ class GeometryTransformationTool:
         alpha_increase_percentage: float = 0.2,
     ) -> SurfaceMesh:
         """
-        Construct a watertight concave hull mesh from a given point cloud using iterative alpha shape creation. 
+        Construct a watertight concave hull mesh from a given point cloud using iterative alpha shape creation.
         The function will keep increasing the alpha value until a watertight mesh is obtained or the maximum number of iterations is reached.
 
         Args:
@@ -98,8 +99,8 @@ class GeometryTransformationTool:
         point_cloud: PointCloud, radii: List[float]
     ) -> SurfaceMesh:
         """
-        Construct a mesh from a given point cloud using the Ball Pivoting algorithm. 
-        Not recommended for large point clouds due to computational intensity.       
+        Construct a mesh from a given point cloud using the Ball Pivoting algorithm.
+        Not recommended for large point clouds due to computational intensity.
 
         Args:
             point_cloud (PointCloud): The point cloud from which to construct the mesh.
@@ -126,7 +127,7 @@ class GeometryTransformationTool:
         Returns:
             SurfaceWireframe: The constructed wireframe.
         """
-        
+
         # get kNN indices
         ind, _ = point_cloud.kNN_search(k)
 
@@ -236,7 +237,7 @@ class GeometryTransformationTool:
         Returns:
             PointCloud: The created point cloud.
         """
-        
+
         pcd = mesh.geometry.sample_points_poisson_disk(
             number_of_points=number_of_points
         )
@@ -260,7 +261,7 @@ class GeometryTransformationTool:
     @staticmethod
     def unique_wireframe_from(wireframe: SurfaceWireframe) -> SurfaceWireframe:
         """
-        Create a unique wireframe from a given wireframe by removing duplicate edges. 
+        Create a unique wireframe from a given wireframe by removing duplicate edges.
         This is useful for visualizing the underlying structure of a mesh without redundant edges or
         when building a SurfaceGraph where duplicate edges would cause issues (computationally and conceptually).
 
@@ -277,11 +278,11 @@ class GeometryTransformationTool:
         wireframe: UniqueSurfaceWireframe,
     ) -> Dict[Tuple[int, int], float]:
         """
-        Create a lookup table (LUT) for edge lengths from a given unique wireframe. 
-        The LUT is a dictionary where the keys are tuples of vertex indices representing an edge, 
-        and the values are the corresponding edge lengths. 
-        
-        This can be useful for algorithms that require quick access to edge lengths, 
+        Create a lookup table (LUT) for edge lengths from a given unique wireframe.
+        The LUT is a dictionary where the keys are tuples of vertex indices representing an edge,
+        and the values are the corresponding edge lengths.
+
+        This can be useful for algorithms that require quick access to edge lengths,
         such as pathfinding algorithms on surface graphs.
 
         Args:

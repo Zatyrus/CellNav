@@ -24,11 +24,11 @@ class GeometryBase(ABC):
         **kwargs,
     ) -> None:
         """
-        Main base class for all geometrical objects in the Min3D framework. 
-        This class is not meant to be instantiated directly, 
-        but rather to be subclassed by specific geometry types (e.g. PointCloud, SurfaceMesh, SurfaceWireframe). 
-        The implementation of this class provides common functionality for all geometrical objects, 
-        such as basic transformations (translate, scale, center), visualization functions, 
+        Main base class for all geometrical objects in the Min3D framework.
+        This class is not meant to be instantiated directly,
+        but rather to be subclassed by specific geometry types (e.g. PointCloud, SurfaceMesh, SurfaceWireframe).
+        The implementation of this class provides common functionality for all geometrical objects,
+        such as basic transformations (translate, scale, center), visualization functions,
         and utility functions to get properties of the geometry (e.g. center of mass, bounding box).
 
         Args:
@@ -54,7 +54,7 @@ class GeometryBase(ABC):
 
     def __post_init__(self) -> None:
         """
-        Post initialization function that can be used to perform any additional setup after the object has been initialized. 
+        Post initialization function that can be used to perform any additional setup after the object has been initialized.
         This is a placeholder for now, but can be used in the future to set up additional properties or perform checks on the geometry.
         """
         pass
@@ -83,7 +83,7 @@ class GeometryBase(ABC):
         **kwargs,
     ) -> "GeometryBase":
         """
-        Create a GeometryBase object from an existing Open3D geometry object. 
+        Create a GeometryBase object from an existing Open3D geometry object.
         This is a common classmethod that can be used by all subclasses to create an instance from an Open3D geometry.
 
         Args:
@@ -137,7 +137,7 @@ class GeometryBase(ABC):
 
     def get_center_of_bounding_box(self) -> np.ndarray:
         """Get the center of the axis-aligned bounding box.
-        
+
         Returns:
             np.ndarray: The center of the axis-aligned bounding box. 3D vector.
         """
@@ -210,22 +210,22 @@ class GeometryBase(ABC):
     # %% 3D Visualization functions
     def visualize(self) -> None:
         """
-        Visualize the geometry object saved to self._geometry using Open3D's visualization tools. 
-        This will open a window where the geometry can be viewed. 
+        Visualize the geometry object saved to self._geometry using Open3D's visualization tools.
+        This will open a window where the geometry can be viewed.
         No interactions are possible or planned in this basic visualization mode.
         """
         o3d.visualization.draw_geometries([self._geometry])  # type: ignore
 
     def visualize_only(self, *args) -> None:
         """
-        Visualizes only the provided geometries, without including the geometry of the current object. 
+        Visualizes only the provided geometries, without including the geometry of the current object.
         This can be useful for visualizing related geometries (e.g. a path on top of a mesh) without showing the base geometry.
         """
         o3d.visualization.draw_geometries([*args])  # type: ignore
 
     def visualize_with(self, *args) -> None:
         """
-        Visualizes the current geometry together with additional geometries provided as arguments. 
+        Visualizes the current geometry together with additional geometries provided as arguments.
         This can be useful for visualizing the base geometry together with related geometries (e.g. a path on top of a mesh).
         """
         args = [arg.geometry if isinstance(arg, GeometryBase) else arg for arg in args]
@@ -237,7 +237,7 @@ class GeometryBase(ABC):
         """
         Spin up the Open3D visualizer in editing mode, which allows the user to interactively select points on the geometry.
         After the user finishes editing and closes the visualizer, the edited geometry can be returned as either a new object or by modifying the original object in place.
-        
+
         Args:
             inplace (bool, optional): Whether to modify the original geometry in place or return a new geometry object. Defaults to True.
             full_screen (bool, optional): Whether to open the visualizer in full screen mode. Defaults to False.
@@ -245,21 +245,21 @@ class GeometryBase(ABC):
         Returns:
             "GeometryBase": The edited geometry object, either the original or a new instance.
         """
-        
-        # the visualizer blocks the execution until the user finishes editing and closes the visualizer, 
+
+        # the visualizer blocks the execution until the user finishes editing and closes the visualizer,
         # so we can simply return the edited geometry after vis.run() is done
         vis = o3d.visualization.VisualizerWithEditing()  # type: ignore
         vis.create_window()
-        
+
         # set full screen if requested
         # we put this behind an if statement because else it will raise a warning
         if full_screen:
             vis.set_full_screen(full_screen)
-            
+
         # add the geometry to the visualizer and run it
         vis.add_geometry(self._geometry)
         vis.run()
-        
+
         # close the visualizer after editing is done
         vis.destroy_window()
 
@@ -278,7 +278,7 @@ class GeometryBase(ABC):
 
         Args:
             color (Tuple[float, float, float]): The RGB color to paint the geometry with, where each component is in the range [0, 1].
-            
+
         Returns:
             None: This function modifies the geometry in place and does not return anything.
         """
@@ -294,12 +294,11 @@ class GeometryBase(ABC):
         Args:
             color_array (np.ndarray): An array of scalar values to be mapped to colors.
             cmap (Union[str, matplotlib.colors.Colormap], optional): The colormap to use. Defaults to "viridis".
-            
+
         Returns:
             None: This function modifies the geometry in place and does not return anything.
         """
-        
-        
+
         # select colormap
         if isinstance(cmap, str):
             cmap = matplotlib.colormaps[cmap]
@@ -317,10 +316,10 @@ class GeometryBase(ABC):
 
     def print_visualizer_key_bindings(self) -> None:
         """
-        Print the key bindings for the Open3D visualizer. 
+        Print the key bindings for the Open3D visualizer.
         This can be useful for users who are not familiar with the Open3D visualizer and want to know how to interact with it.
         """
-        
+
         print(
             """
             -- Mouse view control --
@@ -392,7 +391,7 @@ class GeometryBase(ABC):
     # %% IO
     @abstractmethod
     def save(self, file_path: Optional[str] = None) -> None:
-        """Save the object stored in self._geometry to a PLY file. 
+        """Save the object stored in self._geometry to a PLY file.
         If no file path is provided and on a Windows machine, a file dialog will be opened to select a save location.
 
         Args:
@@ -402,7 +401,7 @@ class GeometryBase(ABC):
 
     @abstractmethod
     def load(self, file_path: Optional[str] = None) -> None:
-        """Load a geometry object from a PLY file and place it in self._geometry. 
+        """Load a geometry object from a PLY file and place it in self._geometry.
         If no file path is provided and on a Windows machine, a file dialog will be opened to select a PLY file.
 
         Args:
@@ -424,8 +423,8 @@ class GeometryBase(ABC):
     @abstractmethod
     def colors(self) -> Union[np.ndarray, o3d.utility.Vector3dVector]:
         """
-        Color property of the geometry. 
-        This can be either a numpy array or an Open3D Vector3dVector, 
+        Color property of the geometry.
+        This can be either a numpy array or an Open3D Vector3dVector,
         depending on the specific geometry type and how colors are stored in that geometry.
         The shape of the color array will depend on the geometry type (e.g. for a point cloud, it will be (N, 3) where N is the number of points, and for a mesh it will be (M, 3) where M is the number of vertices).
 
@@ -446,18 +445,18 @@ class GeometryBase(ABC):
             color_array (Union[np.ndarray, o3d.utility.Vector3dVector]): The color array to set.
         """
         pass
-    
+
     @property
     def config(self) -> Dict[str, bool]:
         """
-        Configuration dictionary for the geometry object. 
+        Configuration dictionary for the geometry object.
         This can be used to store various configuration options that affect the behavior of the object, such as verbosity, debug mode, or other flags that can be checked in different methods to modify their behavior.
 
         Returns:
             Dict[str, bool]: The configuration dictionary.
         """
         return self._config
-    
+
     @config.setter
     def config(self, config_dict: Dict[str, bool]) -> None:
         """
@@ -468,30 +467,44 @@ class GeometryBase(ABC):
         """
         if not isinstance(config_dict, dict):
             raise ValueError("Config must be a dictionary.")
-        
+
         self._config = config_dict
-        
+
     @property
-    def geometry(self) -> Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet]:
+    def geometry(
+        self,
+    ) -> Union[
+        o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet
+    ]:
         """
-        The underlying Open3D geometry object that this class wraps around. 
-        This can be a PointCloud, TriangleMesh, or LineSet depending on the specific subclass. 
+        The underlying Open3D geometry object that this class wraps around.
+        This can be a PointCloud, TriangleMesh, or LineSet depending on the specific subclass.
         This property allows access to the raw Open3D geometry for cases where direct manipulation or access to Open3D functions is needed.
 
         Returns:
             Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet]: The underlying Open3D geometry object.
         """
         return self._geometry
-    
+
     @geometry.setter
-    def geometry(self, geometry: Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet]) -> None:
+    def geometry(
+        self,
+        geometry: Union[
+            o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet
+        ],
+    ) -> None:
         """
         Set the underlying Open3D geometry object.
 
         Args:
             geometry (Union[o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet]): The Open3D geometry object to set.
         """
-        if not isinstance(geometry, (o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet)):
-            raise ValueError("Geometry must be an instance of open3d.geometry.PointCloud, open3d.geometry.TriangleMesh, or open3d.geometry.LineSet.")
-        
+        if not isinstance(
+            geometry,
+            (o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet),
+        ):
+            raise ValueError(
+                "Geometry must be an instance of open3d.geometry.PointCloud, open3d.geometry.TriangleMesh, or open3d.geometry.LineSet."
+            )
+
         self._geometry = geometry

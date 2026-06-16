@@ -33,10 +33,10 @@ def generate_hollow_cylinder(
     """
     if inner_radius <= 0 or outer_radius <= 0:
         raise ValueError("inner_radius and outer_radius must be positive")
-    
+
     if inner_radius >= outer_radius:
         raise ValueError("inner_radius must be less than outer_radius")
-    
+
     # Generate random points on the surface of a hollow cylinder
     phi = np.random.uniform(0, 2 * np.pi, num_points)
     z = np.random.uniform(-height / 2, height / 2, num_points)

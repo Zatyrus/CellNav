@@ -28,10 +28,10 @@ def generate_ellipsoid(
     Returns:
         PointCloud: A point cloud representing the ellipsoid.
     """
-    
+
     if any(r <= 0 for r in radii):
         raise ValueError("All radii must be positive")
-    
+
     # Generate random points on the surface of an ellipsoid
     phi = np.random.uniform(0, 2 * np.pi, num_points)
     arc_cos = np.random.uniform(

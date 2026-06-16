@@ -23,7 +23,7 @@ def generate_sphere(
     Returns:
         PointCloud: A point cloud representing the sphere.
     """
-    
+
     # Generate random points on the surface of a sphere
     phi = np.random.uniform(0, 2 * np.pi, num_points)
 

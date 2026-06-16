@@ -26,11 +26,11 @@ def draw_3d_path(
         cmap (str, optional): The colormap for the path. Defaults to "viridis".
         scale_factor (float, optional): The scale factor for the path. Defaults to 1.0.
         magnitude (Union[str, float], optional): The magnitude for the path. Defaults to "auto".
-        
+
     Returns:
         None: This function does not return anything. It opens an interactive visualization window.
     """
-    
+
     ## generate path3D object from the path and color information
     path_3d = make_3d_path(
         path=path,

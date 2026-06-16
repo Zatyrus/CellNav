@@ -1,5 +1,4 @@
 ## dependencies
-from typing import Union
 
 import numpy as np
 import open3d as o3d
@@ -17,12 +16,13 @@ try:
 except ImportError:
     from tqdm import tqdm
 
+
 class AlphaShapeHelper:
     """
     Helper class for working with alpha shapes, including functions for checking watertightness, repairing meshes, and iterapy_mesh_fixg until a watertight mesh is found.
-    Methods this class implements are meant for internal use onyl, and are not intended to be called directly by users. 
+    Methods this class implements are meant for internal use onyl, and are not intended to be called directly by users.
     They are used as part of the process of generapy_mesh_fixg a watertight mesh from a point cloud using alpha shapes.
-    
+
     Please refer to the SurfaceMesh class for generapy_mesh_fixg a watertight mesh from a point cloud, which internally uses the methods of this helper class.
 
     Raises:
@@ -30,9 +30,9 @@ class AlphaShapeHelper:
         ValueError: When the mesh cannot be made watertight.
         ValueError: When the point cloud is empty.
     """
-    
+
     @staticmethod
-    def check_watertight(mesh:o3d.geometry.TriangleMesh) -> bool:
+    def check_watertight(mesh: o3d.geometry.TriangleMesh) -> bool:
         """Check if a given mesh is watertight, meaning it has no holes and is a closed surface.
 
         Args:
@@ -41,13 +41,14 @@ class AlphaShapeHelper:
         Returns:
             bool: True if the mesh is watertight, False otherwise.
         """
-        return mesh.is_watertight()  
-            
+        return mesh.is_watertight()
 
     @staticmethod
-    def cluster_mesh(mesh: o3d.geometry.TriangleMesh, cluster_by: str = "area") -> o3d.geometry.TriangleMesh:
+    def cluster_mesh(
+        mesh: o3d.geometry.TriangleMesh, cluster_by: str = "area"
+    ) -> o3d.geometry.TriangleMesh:
         """
-        Cluster the triangles of a mesh based on a specified criterion. 
+        Cluster the triangles of a mesh based on a specified criterion.
         The function clusters the triangles of the mesh and retains only the largest cluster based on the specified criterion, which can be either "area" or "number".
 
         Args:
@@ -103,7 +104,7 @@ class AlphaShapeHelper:
         Returns:
             o3d.geometry.TriangleMesh: The repaired mesh.
         """
-        
+
         # setup the PyMeshFix object and load the mesh vertices and triangles into it
         py_mesh_fix = pmf.PyTMesh()
         py_mesh_fix.load_array(np.asarray(mesh.vertices), np.asarray(mesh.triangles))
@@ -125,7 +126,7 @@ class AlphaShapeHelper:
     def make_watertight(
         mesh: o3d.geometry.TriangleMesh, cluster_by: str = "area"
     ) -> o3d.geometry.TriangleMesh:
-        """Attempt to make a mesh watertight by first checking if it is already watertight, 
+        """Attempt to make a mesh watertight by first checking if it is already watertight,
         and if not, cleaning it, repairing it, and clustering it to retain only the largest cluster.
 
         Args:
@@ -136,9 +137,9 @@ class AlphaShapeHelper:
             ValueError: If the mesh cannot be made watertight.
 
         Returns:
-            o3d.geometry.TriangleMesh: The watertight mesh. 
-            If the original mesh is already watertight, it is returned as is. 
-            Otherwise, the cleaned, repaired, and clustered mesh is returned if it is watertight. 
+            o3d.geometry.TriangleMesh: The watertight mesh.
+            If the original mesh is already watertight, it is returned as is.
+            Otherwise, the cleaned, repaired, and clustered mesh is returned if it is watertight.
             If not, a ValueError is raised.
         """
         if AlphaShapeHelper.check_watertight(mesh):
@@ -165,9 +166,9 @@ class AlphaShapeHelper:
     ) -> o3d.geometry.TriangleMesh:
         """An iterative process that attempts to generate a watertight mesh from a point cloud using alpha shapes.
         The process starts with a given alpha value and generates an alpha shape mesh from the point cloud.
-        If the generated mesh is not watertight, it attempts to repair it using the repair_mesh function, 
+        If the generated mesh is not watertight, it attempts to repair it using the repair_mesh function,
         then cleans it and clusters it to retain only the largest cluster, and checks if the resulting mesh is watertight.
-        
+
         If a watertight mesh is found at any point in the process, it is returned immediately.
 
         Args:
@@ -228,7 +229,7 @@ class AlphaShapeHelper:
         """
         Post-process the mesh by cleaning it and clustering it to retain only the largest cluster based on the specified criterion.
         This function is intended to be used after the iterative process of making a mesh watertight, to further clean and refine the resulting mesh.
-        
+
         It can also be used independently to clean and cluster any mesh, regardless of whether it was generated from an alpha shape or not.
 
         Args:

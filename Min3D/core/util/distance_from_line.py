@@ -19,8 +19,8 @@ def distance_from_line(
     ),
 ) -> np.ndarray:
     """
-    Calculate the distance from a given point cloud to a line defined by a point and a direction vector. 
-    The line is defined by an axis point and an axis direction vector. 
+    Calculate the distance from a given point cloud to a line defined by a point and a direction vector.
+    The line is defined by an axis point and an axis direction vector.
     The distance is calculated as the shortest distance from each point in the point cloud to the line.
 
     Args:

@@ -24,14 +24,14 @@ def generate_gaussian_blob(
 
     Raises:
         ValueError: If sigma is negative.
-    
+
     Returns:
         PointCloud: A point cloud representing the Gaussian blob.
     """
-    
+
     if sigma < 0:
         raise ValueError("sigma must be non-negative")
-    
+
     # Generate random points around the center
     points = np.random.normal(loc=center, scale=sigma, size=(num_points, 3))
 
