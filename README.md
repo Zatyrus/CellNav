@@ -1,19 +1,20 @@
-# CellSurf
+# Cell Navigation (cellnav)
 A framework implementation to of 3D methods for data representation, surface reconstruction and geodesic distance measures built on top of the Open3D and rustworkx libraries. 
+It is used to generate a navigatable surface from a point cloud and to compute geodesic distances on the surface. The framework is designed to be easily extendable and to provide a unified interface for different methods. It is intended to be used for research and development in the field of 3D data processing and analysis of cell surfaces.
 
 # Installation - For Users
-To install CellSurf, you can use pip:
+To install CellNav, you can use pip:
 ```bash
-pip install cellsurf
+pip install cellnav
 ```
 # Installation - For Contributors
-If you want to contribute to the development of CellSurf, you can clone the repository and install the package in editable mode. This allows you to make changes to the code and see the effects immediately without needing to reinstall the package.
+If you want to contribute to the development of CellNav, you can clone the repository and install the package in editable mode. This allows you to make changes to the code and see the effects immediately without needing to reinstall the package.
 
 ## Pip
 ```bash
 # Clone the repository
-git clone https://github.com/Zatyrus/CellSurf.git
-cd CellSurf
+git clone https://github.com/Zatyrus/CellNav.git
+cd CellNav
 
 # Ideally create a new (conda) environment
 # for this project to avoid conflicts with other packages
@@ -27,8 +28,8 @@ pip install -e .
 ## Python Poetry
 ```bash
 # Clone the repository
-git clone https://github.com/Zatyrus/CellSurf.git
-cd CellSurf
+git clone https://github.com/Zatyrus/CellNav.git
+cd CellNav
 
 # Ideally create a new (conda) environment
 # for this project to avoid conflicts with other packages
@@ -39,7 +40,7 @@ conda activate MinSPT
 poetry install
 ```
 ## Tips for Jupyter Notebooks
-If you want to run the Jupyter notebooks included in the repository, you need to ensure that you have Jupyter installed in the same environment where CellSurf is installed. Here are the steps to set up the environment for running the notebooks:
+If you want to run the Jupyter notebooks included in the repository, you need to ensure that you have Jupyter installed in the same environment where CellNav is installed. Here are the steps to set up the environment for running the notebooks:
 ```bash
 # optionally activate the conda environment if you created one
 conda activate MinSPT
@@ -50,29 +51,29 @@ pip install jupyter ipykernel ipywidgets
 
 # Outline of the Codebase
 ```bash
-CellSurf - Repository
-├───cellsurf
+CellNav - Repository
+├───cellnav
 │   ├───core
 │   │   ├───containers
 │   │   ├───framework
 │   │   ├───helpers
-│   │   ├───util
+│   │   └───util
 │   ├───generators
 │   └────visualization
 ├───test_data
 └───tutorials
 ```
 
-The CellSurf codebase is organized into several modules, each responsible for different aspects of the framework:
+The CellNav codebase is organized into several modules, each responsible for different aspects of the framework:
 - `core`: Contains the core classes and functions for data representation, surface reconstruction, and geodesic distance measures. This includes containers for point clouds and meshes, the main framework for processing data, helper functions for various tasks, and utility functions for common operations.
 - `generators`: Contains functions for generating synthetic 3D shapes and point clouds, which can be used for testing and demonstration purposes.
 - `visualization`: Contains functions for visualizing point clouds and meshes using Open3D.
 
 # Quick Start and Tutorials
-To get started with CellSurf, import a generator for your favorite 3D-shape from the `cellsurf.generators` module and create a surface from it. For example, to create a surface from a sphere generator:
+To get started with CellNav, import a generator for your favorite 3D-shape from the `cellnav.generators` module and create a surface from it. For example, to create a surface from a sphere generator:
 ```python
-from cellsurf.generators import generate_sphere, add_gaussian_noise
-from cellsurf import GeometryTransformer
+from cellnav.generators import generate_sphere, add_gaussian_noise
+from cellnav import GeometryTransformer
 
 # Generate a sphere point cloud
 sphere = generate_sphere(

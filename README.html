@@ -2,7 +2,7 @@
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>CellSurf</title>
+            <title>Cell Navigation &lpar;cellnav&rpar;</title>
             <style>
 /* From extension vscode.github */
 /*---------------------------------------------------------------------------------------------
@@ -139,18 +139,19 @@
         </head>
         <body class="vscode-body vscode-light">
             <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
-				<h1 id="cellsurf">CellSurf</h1>
-<p>A framework implementation to of 3D methods for data representation, surface reconstruction and geodesic distance measures built on top of the Open3D and rustworkx libraries.</p>
+				<h1 id="cell-navigation-cellnav">Cell Navigation (cellnav)</h1>
+<p>A framework implementation to of 3D methods for data representation, surface reconstruction and geodesic distance measures built on top of the Open3D and rustworkx libraries.
+It is used to generate a navigatable surface from a point cloud and to compute geodesic distances on the surface. The framework is designed to be easily extendable and to provide a unified interface for different methods. It is intended to be used for research and development in the field of 3D data processing and analysis of cell surfaces.</p>
 <h1 id="installation---for-users">Installation - For Users</h1>
-<p>To install CellSurf, you can use pip:</p>
-<pre><code class="language-bash">pip install cellsurf
+<p>To install CellNav, you can use pip:</p>
+<pre><code class="language-bash">pip install cellnav
 </code></pre>
 <h1 id="installation---for-contributors">Installation - For Contributors</h1>
-<p>If you want to contribute to the development of CellSurf, you can clone the repository and install the package in editable mode. This allows you to make changes to the code and see the effects immediately without needing to reinstall the package.</p>
+<p>If you want to contribute to the development of CellNav, you can clone the repository and install the package in editable mode. This allows you to make changes to the code and see the effects immediately without needing to reinstall the package.</p>
 <h2 id="pip">Pip</h2>
 <pre><code class="language-bash"><span class="hljs-comment"># Clone the repository</span>
-git <span class="hljs-built_in">clone</span> https://github.com/Zatyrus/CellSurf.git
-<span class="hljs-built_in">cd</span> CellSurf
+git <span class="hljs-built_in">clone</span> https://github.com/Zatyrus/CellNav.git
+<span class="hljs-built_in">cd</span> CellNav
 
 <span class="hljs-comment"># Ideally create a new (conda) environment</span>
 <span class="hljs-comment"># for this project to avoid conflicts with other packages</span>
@@ -162,8 +163,8 @@ pip install -e .
 </code></pre>
 <h2 id="python-poetry">Python Poetry</h2>
 <pre><code class="language-bash"><span class="hljs-comment"># Clone the repository</span>
-git <span class="hljs-built_in">clone</span> https://github.com/Zatyrus/CellSurf.git
-<span class="hljs-built_in">cd</span> CellSurf
+git <span class="hljs-built_in">clone</span> https://github.com/Zatyrus/CellNav.git
+<span class="hljs-built_in">cd</span> CellNav
 
 <span class="hljs-comment"># Ideally create a new (conda) environment</span>
 <span class="hljs-comment"># for this project to avoid conflicts with other packages</span>
@@ -174,7 +175,7 @@ conda activate MinSPT
 poetry install
 </code></pre>
 <h2 id="tips-for-jupyter-notebooks">Tips for Jupyter Notebooks</h2>
-<p>If you want to run the Jupyter notebooks included in the repository, you need to ensure that you have Jupyter installed in the same environment where CellSurf is installed. Here are the steps to set up the environment for running the notebooks:</p>
+<p>If you want to run the Jupyter notebooks included in the repository, you need to ensure that you have Jupyter installed in the same environment where CellNav is installed. Here are the steps to set up the environment for running the notebooks:</p>
 <pre><code class="language-bash"><span class="hljs-comment"># optionally activate the conda environment if you created one</span>
 conda activate MinSPT
 
@@ -182,28 +183,28 @@ conda activate MinSPT
 pip install jupyter ipykernel ipywidgets
 </code></pre>
 <h1 id="outline-of-the-codebase">Outline of the Codebase</h1>
-<pre><code class="language-bash">CellSurf - Repository
-├───cellsurf
+<pre><code class="language-bash">CellNav - Repository
+├───cellnav
 │   ├───core
 │   │   ├───containers
 │   │   ├───framework
 │   │   ├───helpers
-│   │   ├───util
+│   │   └───util
 │   ├───generators
 │   └────visualization
 ├───test_data
 └───tutorials
 </code></pre>
-<p>The CellSurf codebase is organized into several modules, each responsible for different aspects of the framework:</p>
+<p>The CellNav codebase is organized into several modules, each responsible for different aspects of the framework:</p>
 <ul>
 <li><code>core</code>: Contains the core classes and functions for data representation, surface reconstruction, and geodesic distance measures. This includes containers for point clouds and meshes, the main framework for processing data, helper functions for various tasks, and utility functions for common operations.</li>
 <li><code>generators</code>: Contains functions for generating synthetic 3D shapes and point clouds, which can be used for testing and demonstration purposes.</li>
 <li><code>visualization</code>: Contains functions for visualizing point clouds and meshes using Open3D.</li>
 </ul>
 <h1 id="quick-start-and-tutorials">Quick Start and Tutorials</h1>
-<p>To get started with CellSurf, import a generator for your favorite 3D-shape from the <code>cellsurf.generators</code> module and create a surface from it. For example, to create a surface from a sphere generator:</p>
-<pre><code class="language-python"><span class="hljs-keyword">from</span> cellsurf.generators <span class="hljs-keyword">import</span> generate_sphere, add_gaussian_noise
-<span class="hljs-keyword">from</span> cellsurf <span class="hljs-keyword">import</span> GeometryTransformer
+<p>To get started with CellNav, import a generator for your favorite 3D-shape from the <code>cellnav.generators</code> module and create a surface from it. For example, to create a surface from a sphere generator:</p>
+<pre><code class="language-python"><span class="hljs-keyword">from</span> cellnav.generators <span class="hljs-keyword">import</span> generate_sphere, add_gaussian_noise
+<span class="hljs-keyword">from</span> cellnav <span class="hljs-keyword">import</span> GeometryTransformer
 
 <span class="hljs-comment"># Generate a sphere point cloud</span>
 sphere = generate_sphere(
