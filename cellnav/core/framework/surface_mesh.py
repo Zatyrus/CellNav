@@ -348,7 +348,38 @@ class SurfaceMesh(GeometryBase):
 
     @overrides
     def __len__(self) -> int:
-        return len(self.geometry.vertices)
+        return len(self._geometry.vertices)
+    
+    @overrides
+    def __add__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for +: 'SurfaceMesh' and '{type(other).__name__}'")
+        
+        combined_geometry = self._geometry + other.geometry
+        return SurfaceMesh.from_o3d(combined_geometry)
+    
+    @overrides
+    def __sub__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for -: 'SurfaceMesh' and '{type(other).__name__}'")
+        
+        # REQUIRES TESTING - Open3D does not support direct subtraction of meshes, so this is a placeholder for a more complex operation that would need to be implemented.
+        raise NotImplementedError("Subtraction of SurfaceMesh instances is not currently implemented.")
+    
+    @overrides
+    def __iadd__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for +=: 'SurfaceMesh' and '{type(other).__name__}'")
+        self._geometry += other.geometry
+        return self
+    
+    @overrides
+    def __isub__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for -=: 'SurfaceMesh' and '{type(other).__name__}'")
+        
+        # REQUIRES TESTING - Open3D does not support direct subtraction of meshes, so this is a placeholder for a more complex operation that would need to be implemented.
+        raise NotImplementedError("In-place subtraction of SurfaceMesh instances is not currently implemented.")
 
     # %% Properties
     @property

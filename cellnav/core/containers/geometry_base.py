@@ -433,7 +433,159 @@ class GeometryBase(ABC):
         """
         pass
 
+    @abstractmethod
+    def __add__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the addition operator for GeometryBase objects.
+        This will allow us to combine two geometries into one by adding their underlying Open3D geometries together.
+
+        Args:
+            other (GeometryBase): The other geometry to add to this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+
+        Returns:
+            GeometryBase: A new geometry object representing the sum of the two geometries.
+        """
         pass
+    
+    @abstractmethod
+    def __sub__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the subtraction operator for GeometryBase objects.
+        This will allow us to subtract one geometry from another by removing the points of the second geometry from the first geometry.
+
+        Args:
+            other (GeometryBase): The other geometry to subtract from this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            GeometryBase: A new geometry object representing the difference between the two geometries.
+        """
+        pass
+    
+    @abstractmethod
+    def __iadd__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the in-place addition operator for GeometryBase objects.
+        This will allow us to add another geometry to this geometry in place by modifying the underlying Open3D geometry of this object.
+
+        Args:
+            other (GeometryBase): The other geometry to add to this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            GeometryBase: The modified geometry object after adding the other geometry.
+        """        
+        pass
+    
+    @abstractmethod
+    def __isub__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the in-place subtraction operator for GeometryBase objects.
+        This will allow us to subtract another geometry from this geometry in place by modifying the underlying Open3D geometry of this object.
+
+        Args:
+            other (GeometryBase): The other geometry to subtract from this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            GeometryBase: The modified geometry object after subtracting the other geometry.
+        """
+        pass
+    
+    def __mul__(self, scaler: Union[float, int]) -> "GeometryBase":
+        """
+        Define the multiplication operator for GeometryBase objects.
+        This can be used to apply a transformation (e.g. scaling) to the geometry by multiplying it with a scalar or another geometry.
+
+        Args:
+            scaler (Union[float, GeometryBase]): The scalar or geometry to multiply with this geometry.
+            
+        Returns:
+            GeometryBase: A new geometry object representing the result of the multiplication.
+        """
+        if isinstance(scaler, (int, float)):
+            scaled_geometry = self._geometry.scale(scaler, center=False)
+            return self.__class__.from_o3d(scaled_geometry)
+        else:
+            raise ValueError("Can only multiply by a scalar (int or float).")
+
+    def __div__(self, scaler: Union[float, int]) -> "GeometryBase":
+        """
+        Define the division operator for GeometryBase objects.
+        This can be used to apply a transformation (e.g. scaling) to the geometry by dividing it by a scalar or another geometry.
+
+        Args:
+            scaler (Union[float, GeometryBase]): The scalar or geometry to divide this geometry by.
+            
+        Returns:
+            GeometryBase: A new geometry object representing the result of the division.
+        """
+        if isinstance(scaler, (int, float)):
+            scaled_geometry = self._geometry.scale(1 / scaler, center=False)
+            return self.__class__.from_o3d(scaled_geometry)
+        else:
+            raise ValueError("Can only divide by a scalar (int or float).")
+    
+    def __imul__(self, scaler: Union[float, int]) -> "GeometryBase":
+        """
+        Define the in-place multiplication operator for GeometryBase objects.
+        This can be used to apply a transformation (e.g. scaling) to the geometry in place by multiplying it with a scalar or another geometry.
+
+        Args:
+            scaler (Union[float, GeometryBase]): The scalar or geometry to multiply with this geometry.
+            
+        Returns:
+            GeometryBase: The modified geometry object after the multiplication.
+        """
+        if isinstance(scaler, (int, float)):
+            self._geometry.scale(scaler, center=False)
+            return self
+        else:
+            raise ValueError("Can only multiply by a scalar (int or float).")
+    
+    def __idiv__(self, scaler: Union[float, int]) -> "GeometryBase":
+        """
+        Define the in-place division operator for GeometryBase objects.
+        This can be used to apply a transformation (e.g. scaling) to the geometry in place by dividing it by a scalar or another geometry.
+
+        Args:
+            scaler (Union[float, GeometryBase]): The scalar or geometry to divide this geometry by.
+            
+        Returns:
+            GeometryBase: The modified geometry object after the division.
+        """        
+        if isinstance(scaler, (int, float)):
+            self._geometry.scale(1 / scaler, center=False)
+            return self
+        else:
+            raise ValueError("Can only divide by a scalar (int or float).")
+        
+    def __eq__(self, other: "GeometryBase") -> bool:
+        """
+        Define the equality operator for GeometryBase objects.
+        This can be used to compare two geometries for equality by comparing their underlying Open3D geometries.
+
+        Args:
+            other (GeometryBase): The other geometry to compare with this geometry.
+            
+        Raises:
+            NotImplementedError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            bool: True if the geometries are equal, False otherwise.
+        """
+        if not isinstance(other, GeometryBase):
+            raise NotImplementedError("Can only compare with another GeometryBase object.")
+        return self._geometry == other._geometry
 
     # %% Properties
     @property

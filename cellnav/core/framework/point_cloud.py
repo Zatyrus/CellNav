@@ -669,7 +669,35 @@ class PointCloud(GeometryBase):
 
     @overrides
     def __len__(self) -> int:
-        return len(self.geometry.points)
+        return len(self._geometry.points)
+    
+    @overrides
+    def __add__(self, other: "PointCloud") -> "PointCloud":
+        if not isinstance(other, PointCloud):
+            raise ValueError("Can only add another PointCloud object.")
+        combined_geometry = self._geometry + other.geometry
+        return PointCloud.from_o3d(combined_geometry)
+    
+    @overrides
+    def __sub__(self, other: "PointCloud") -> "PointCloud":
+        if not isinstance(other, PointCloud):
+            raise ValueError("Can only subtract another PointCloud object.")
+        difference_geometry = self._geometry - other.geometry
+        return PointCloud.from_o3d(difference_geometry)
+    
+    @overrides
+    def __iadd__(self, other: "PointCloud") -> "PointCloud":
+        if not isinstance(other, PointCloud):
+            raise ValueError("Can only add another PointCloud object.")
+        self._geometry += other.geometry
+        return self
+    
+    @overrides
+    def __isub__(self, other: "PointCloud") -> "PointCloud":
+        if not isinstance(other, PointCloud):
+            raise ValueError("Can only subtract another PointCloud object.")
+        self._geometry -= other.geometry
+        return self
 
     # %% Properties
     @property
