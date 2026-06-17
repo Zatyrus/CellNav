@@ -89,11 +89,11 @@ class PointCloud(GeometryBase):
         Returns:
             np.ndarray: Array containing the XYZ coordinates of the specified point.
         """
-        if ind < 0 or ind >= len(self.geometry.points):
+        if ind < 0 or ind >= len(self._geometry.points):
             raise IndexError(
-                f"Index {ind} is out of bounds for points array of length {len(self.geometry.points)}."
+                f"Index {ind} is out of bounds for points array of length {len(self._geometry.points)}."
             )
-        return np.asarray(self.geometry.points)[ind]
+        return np.asarray(self._geometry.points)[ind]
 
     def get_points(self) -> np.ndarray:
         """Return the coordinates of all points in the point cloud as a numpy array.
@@ -101,7 +101,7 @@ class PointCloud(GeometryBase):
         Returns:
             np.ndarray: Array containing the XYZ coordinates of all points.
         """
-        return np.asarray(self.geometry.points)
+        return np.asarray(self._geometry.points)
 
     def get_center_of_convex_hull(self) -> np.ndarray:
         """Compute the convex hull of the point cloud and return its center.
@@ -109,7 +109,7 @@ class PointCloud(GeometryBase):
         Returns:
             np.ndarray: 3D array containing the XYZ coordinates of the center of the convex hull.
         """
-        hull, _ = self.geometry.compute_convex_hull()
+        hull, _ = self._geometry.compute_convex_hull()
         return hull.get_center()
 
     # %% Geometric properties
@@ -122,7 +122,7 @@ class PointCloud(GeometryBase):
         Returns:
             np.ndarray: 3D array containing the XYZ coordinates of the farthest point.
         """
-        points = np.asarray(self.geometry.points)
+        points = np.asarray(self._geometry.points)
         distances = np.linalg.norm(points - point, axis=1)
         farthest_point = points[np.argmax(distances)]
         return farthest_point
@@ -143,7 +143,7 @@ class PointCloud(GeometryBase):
             float: Average distance of all points to the center of mass.
         """
         center_of_mass = self.get_center_of_mass()
-        points = np.asarray(self.geometry.points)
+        points = np.asarray(self._geometry.points)
         distances = np.linalg.norm(points - center_of_mass, axis=1)
         return np.mean(distances)
 
@@ -156,7 +156,7 @@ class PointCloud(GeometryBase):
         Returns:
             float: Average distance of all points to the specified point.
         """
-        points = np.asarray(self.geometry.points)
+        points = np.asarray(self._geometry.points)
         distances = np.linalg.norm(points - point, axis=1)
         return np.mean(distances)
 
@@ -171,7 +171,7 @@ class PointCloud(GeometryBase):
         Returns:
             float: The volume of the convex hull.
         """
-        hull, _ = self.geometry.compute_convex_hull()
+        hull, _ = self._geometry.compute_convex_hull()
         if not hull.is_watertight():
             raise ValueError("Convex hull mesh must be watertight to compute volume.")
         return hull.get_volume()
@@ -182,7 +182,7 @@ class PointCloud(GeometryBase):
         Returns:
             float: The surface area of the convex hull.
         """
-        hull, _ = self.geometry.compute_convex_hull()
+        hull, _ = self._geometry.compute_convex_hull()
         return hull.get_surface_area()
 
     def get_nearest_neighbor_distance(self) -> np.ndarray:
@@ -191,7 +191,7 @@ class PointCloud(GeometryBase):
         Returns:
             np.ndarray: Array containing the distance to the nearest neighbor for each point.
         """
-        return np.asarray(self.geometry.compute_nearest_neighbor_distance())
+        return np.asarray(self._geometry.compute_nearest_neighbor_distance())
 
     def get_average_dNN(self) -> float:
         """Compute the average distance to the nearest neighbor for all points in the point cloud.
@@ -200,18 +200,8 @@ class PointCloud(GeometryBase):
             float: The average distance to the nearest neighbor.
         """
         return float(
-            np.mean(np.asarray(self.geometry.compute_nearest_neighbor_distance()))
+            np.mean(np.asarray(self._geometry.compute_nearest_neighbor_distance()))
         )
-
-    # %% Bounding geometry functions
-    def get_bounding_sphere(self) -> Tuple[np.ndarray, float]:
-        """Compute the minimal bounding sphere of the point cloud and return its center and radius.
-
-        Returns:
-            Tuple[np.ndarray, float]: The center and radius of the minimal bounding sphere.
-        """
-        center, radius = self.geometry.get_minimal_bounding_sphere()
-        return np.asarray(center), radius
 
     # %% Data Manipulation
     def scale_axis(
@@ -242,7 +232,7 @@ class PointCloud(GeometryBase):
         scaled_points = points * np.array(scale_factors)
 
         if inplace:
-            self.geometry.points = o3d.utility.Vector3dVector(scaled_points)
+            self._geometry.points = o3d.utility.Vector3dVector(scaled_points)
             return self
         else:
             new_dataset = o3d.geometry.PointCloud()
@@ -261,11 +251,11 @@ class PointCloud(GeometryBase):
         Returns:
             PointCloud: Either the modified point cloud (if inplace=True) or a new PointCloud object with the downsampled points (if inplace=False).
         """
-        downsampled_pcd = self.geometry.uniform_down_sample(
-            input=self.geometry, every_k_points=every_k_point
+        downsampled_pcd = self._geometry.uniform_down_sample(
+            input=self._geometry, every_k_points=every_k_point
         )
         if inplace:
-            self.geometry = downsampled_pcd
+            self._geometry = downsampled_pcd
             return self
         return PointCloud.from_o3d(downsampled_pcd)
 
@@ -288,7 +278,7 @@ class PointCloud(GeometryBase):
             PointCloud: Either the modified point cloud (if inplace=True) or a new PointCloud object with the filtered points (if inplace=False).
         """
         # call the open3d function for statistical outlier removal
-        cl, ind = self.geometry.remove_statistical_outlier(
+        cl, ind = self._geometry.remove_statistical_outlier(
             nb_neighbors=nb_points, std_ratio=std_ratio
         )
 
@@ -297,7 +287,7 @@ class PointCloud(GeometryBase):
             self.__display_inlier_outlier(cl, ind)
 
         if inplace:
-            self.geometry = cl
+            self._geometry = cl
             return self
         else:
             return PointCloud.from_o3d(cl)
@@ -323,7 +313,7 @@ class PointCloud(GeometryBase):
             PointCloud: Either the modified point cloud (if inplace=True) or a new PointCloud object with the filtered points (if inplace=False).
         """
         # call the open3d function for radius outlier removal
-        cl, ind = self.geometry.remove_radius_outlier(
+        cl, ind = self._geometry.remove_radius_outlier(
             nb_points=nb_points, radius=radius
         )
 
@@ -332,7 +322,7 @@ class PointCloud(GeometryBase):
             self.__display_inlier_outlier(cl, ind)
 
         if inplace:
-            self.geometry = cl
+            self._geometry = cl
             return self
         else:
             return PointCloud.from_o3d(cl)
@@ -353,7 +343,7 @@ class PointCloud(GeometryBase):
         """
         center_of_mass = self.get_center_of_mass()
         distance_to_center_of_mass = np.linalg.norm(
-            np.asarray(self.geometry.points) - center_of_mass, axis=1
+            np.asarray(self._geometry.points) - center_of_mass, axis=1
         )
 
         # apply a stylesheet for better aesthetics
@@ -402,7 +392,7 @@ class PointCloud(GeometryBase):
         Returns:
             Optional[Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]]: The matplotlib figure and axes if `return_fig` is True, otherwise None.
         """
-        points = np.asarray(self.geometry.points)
+        points = np.asarray(self._geometry.points)
         center_of_mass = self.get_center_of_mass()
         axes_key = {0: "X", 1: "Y", 2: "Z"}
 
@@ -437,7 +427,7 @@ class PointCloud(GeometryBase):
 
     def plot_dNN(self, **kwargs) -> None:
         """Generate a boxplot showing the distribution of nearest neighbor distances (dNN) for the point cloud."""
-        self.plot_dNN_for(self.geometry, **kwargs)
+        self.plot_dNN_for(self._geometry, **kwargs)
 
     def plot_dNN_for(
         self,
@@ -539,10 +529,10 @@ class PointCloud(GeometryBase):
         Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple containing the coordinates and indices of the k nearest neighbors.
         """
-        [k, idx, _] = o3d.geometry.KDTreeFlann(self.geometry).search_knn_vector_3d(
+        [k, idx, _] = o3d.geometry.KDTreeFlann(self._geometry).search_knn_vector_3d(
             point, k
         )
-        return np.asarray(self.geometry.points)[idx], idx
+        return np.asarray(self._geometry.points)[idx], idx
 
     def get_radiusNN(
         self, point: np.ndarray, radius: float
@@ -556,10 +546,10 @@ class PointCloud(GeometryBase):
         Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple containing the coordinates and indices of the neighbors within the specified radius.
         """
-        [_, idx, _] = o3d.geometry.KDTreeFlann(self.geometry).search_radius_vector_3d(
+        [_, idx, _] = o3d.geometry.KDTreeFlann(self._geometry).search_radius_vector_3d(
             point, radius
         )
-        return np.asarray(self.geometry.points)[idx], idx
+        return np.asarray(self._geometry.points)[idx], idx
 
     def kNN_search(self, k: int) -> Tuple[np.ndarray, np.ndarray]:
         """For each point in the point cloud, return the indices and distances of its k nearest neighbors.
@@ -570,7 +560,7 @@ class PointCloud(GeometryBase):
         Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple containing the indices and distances of the k nearest neighbors.
         """
-        points = np.asarray(self.geometry.points)
+        points = np.asarray(self._geometry.points)
         query_points = points.copy()
 
         # initialize nearest neighbor search
@@ -596,7 +586,7 @@ class PointCloud(GeometryBase):
         Returns:
             Tuple[np.ndarray, np.ndarray, np.ndarray]: A tuple containing the indices, distances, and splits of the neighbors within the specified radius.
         """
-        points = np.asarray(self.geometry.points)
+        points = np.asarray(self._geometry.points)
         query_points = points.copy()
 
         # initialize nearest neighbor search
@@ -632,7 +622,7 @@ class PointCloud(GeometryBase):
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
 
-        o3d.io.write_point_cloud(file_path, self.geometry)
+        o3d.io.write_point_cloud(file_path, self._geometry)
 
     @overrides
     def load(self, file_path: Optional[str] = None) -> None:
@@ -648,7 +638,7 @@ class PointCloud(GeometryBase):
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
 
-        self.geometry = o3d.io.read_point_cloud(file_path)
+        self._geometry = o3d.io.read_point_cloud(file_path)
 
     # %% Helper functions
     def __display_inlier_outlier(
@@ -675,7 +665,7 @@ class PointCloud(GeometryBase):
     # %% Dunder methods
     @overrides
     def __repr__(self) -> str:
-        return f"PointCloud with {len(self.geometry.points)} points."
+        return f"PointCloud with {len(self._geometry.points)} points."
 
     @overrides
     def __len__(self) -> int:
@@ -689,7 +679,7 @@ class PointCloud(GeometryBase):
         Returns:
             o3d.utility.Vector3dVector: The points of the point cloud.
         """
-        return self.geometry.points
+        return self._geometry.points
 
     @points.setter
     def points(
@@ -702,12 +692,12 @@ class PointCloud(GeometryBase):
         """
         if isinstance(point_array, np.ndarray):
             point_array = o3d.utility.Vector3dVector(point_array)
-        self.geometry.points = point_array
+        self._geometry.points = point_array
 
     @property
     @overrides
     def colors(self) -> Union[np.ndarray, o3d.utility.Vector3dVector]:
-        return self.geometry.colors
+        return self._geometry.colors
 
     @colors.setter
     @overrides
@@ -716,4 +706,4 @@ class PointCloud(GeometryBase):
     ) -> None:
         if isinstance(color_array, np.ndarray):
             color_array = o3d.utility.Vector3dVector(color_array)
-        self.geometry.colors = color_array
+        self._geometry.colors = color_array
