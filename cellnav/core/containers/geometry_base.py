@@ -176,7 +176,7 @@ class GeometryBase(ABC):
 
         Args:
             scale_factor (float): The scale factor.
-            center (Union[np.ndarray, bool], optional): The center point around which to scale. If True, the center of mass is used. Defaults to True.
+            center (Union[np.ndarray, bool], optional): The center point around which to scale. If not False, the center of mass (True) or provided coordinates are used to first center the geometry. Defaults to True.
             inplace (bool, optional): Whether to modify the geometry in place. Defaults to True.
 
         Returns:
@@ -417,10 +417,22 @@ class GeometryBase(ABC):
     # %% Dunder methods
     @abstractmethod
     def __repr__(self) -> str:
+        """Return a string representation of the geometry object, including its type and basic properties (e.g. number of points, vertices, edges).
+
+        Returns:
+            str: A string representation of the geometry object.
+        """
         pass
 
     @abstractmethod
     def __len__(self) -> int:
+        """Return the number of points or vertices in the geometry object.
+
+        Returns:
+            int: The number of points or vertices in the geometry object.
+        """
+        pass
+
         pass
 
     # %% Properties
