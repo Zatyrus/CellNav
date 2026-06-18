@@ -694,8 +694,7 @@ class PointCloud(GeometryBase):
     def __add__(self, other: "PointCloud") -> "PointCloud":
         if not isinstance(other, PointCloud):
             raise ValueError("Can only add another PointCloud object.")
-        combined_geometry = self._geometry + other.geometry
-        return PointCloud.from_o3d(combined_geometry)
+        return PointCloud.from_o3d(self._geometry + other._geometry)
     
     @overrides
     def __sub__(self, other: "PointCloud") -> "PointCloud":
@@ -722,7 +721,8 @@ class PointCloud(GeometryBase):
     def __iadd__(self, other: "PointCloud") -> "PointCloud":
         if not isinstance(other, PointCloud):
             raise ValueError("Can only add another PointCloud object.")
-        self._geometry += other.geometry
+        new_geometry = self._geometry + other._geometry
+        self._geometry = new_geometry
         return self
     
     @overrides
