@@ -9,7 +9,9 @@ from typing import List, Union
 ## custom dependencies
 from cellnav.core.containers.path_3d import Path3D
 from cellnav.core.helpers.geo_shape_helper import GeoShapeHelper
-from cellnav.core.helpers.estimate_magnitude_from_data import estimate_magnitude_from_data
+from cellnav.core.helpers.estimate_magnitude_from_data import (
+    estimate_magnitude_from_data,
+)
 
 __all__ = ["make_3d_path"]
 
@@ -19,7 +21,7 @@ def make_3d_path(
     path: Union[np.ndarray, List[np.ndarray]],
     color: Union[np.ndarray, List[np.ndarray]],
     cmap: Union[str, matplotlib.colors.Colormap] = "viridis",
-    size: float = 1.0,
+    size: float = 3.0,
     magnitude: Union[str, float] = "auto",
     draw_faces: bool = False,
 ) -> Path3D:
@@ -31,7 +33,7 @@ def make_3d_path(
         path (Union[np.ndarray, List[np.ndarray]]): The 3D path to visualize, either as a numpy array of shape (N, 3) or a list of 3D points.
         color (Union[np.ndarray, List[np.ndarray]]): The colors for the path.
         cmap (Union[str, matplotlib.colors.Colormap], optional): The colormap for the path. Defaults to "viridis".
-        size (float, optional): The scale factor for the path. Defaults to 1.0.
+        size (float, optional): The scale factor for the path. Defaults to 3.0.
         magnitude (Union[str, float], optional): The magnitude for the path. Defaults to "auto".
         draw_faces (bool, optional): Whether to draw faces for the path. Defaults to False.
 
@@ -69,7 +71,9 @@ def make_3d_path(
         rgb_array: np.ndarray = cmap(norm(color))[:, :3]
 
     if isinstance(magnitude, str) and magnitude == "auto":
-        magnitude = estimate_magnitude_from_data(path) - 2 # heuristic to adjust the scale for visualization
+        magnitude = (
+            estimate_magnitude_from_data(path) - 2
+        )  # heuristic to adjust the scale for visualization
     scale = float(np.power(10, magnitude)) * size
 
     # create lineset for the path
@@ -83,7 +87,7 @@ def make_3d_path(
         color=rgb_array[0],  # type: ignore
         make_line=not draw_faces,
     )
-    end_sphere = GeoShapeHelper.generate_tetrahedron_on_point(
+    end_sphere = GeoShapeHelper.generate_icosahedron_on_point(
         path[-1],
         radius=3 * scale,
         color=rgb_array[-1],  # type: ignore
