@@ -63,7 +63,7 @@ class PointCloud(GeometryBase):
         return cls(geometry=geometry, **kwargs)
 
     @classmethod
-    def from_numpy(cls, table: np.ndarray, **kwargs) -> "PointCloud":
+    def from_numpy(cls, table: Union[np.ndarray, List[List[float]]], **kwargs) -> "PointCloud":
         """Build a PointCloud object from a numpy array of shape (N, 3) representing N points in 3D space.
 
         Args:
@@ -72,8 +72,27 @@ class PointCloud(GeometryBase):
         Returns:
             PointCloud: PointCloud object initialized with the provided points.
         """
+        # catch shape mismatch
+        if isinstance(table, np.ndarray):
+            if table.size == 0:
+                raise ValueError("Input table is empty. Please provide a non-empty array of shape (N, 3).")
+            if table.ndim != 2 or table.shape[1] != 3:
+                raise ValueError("Input table must be a numpy array of shape (N, 3).")
+        elif isinstance(table, list):
+            if not all(len(row) == 3 for row in table):
+                raise ValueError("Input table must be a list of lists with 3 elements each.")
+            table = np.array(table)  # convert to numpy array for easier processing
+        else:
+            raise TypeError("Input table must be a numpy array or a list of lists.")
+
+        # open3d's PointCloud class expects an open3d.utility.Vector3dVector for the points, 
+        # so we need to convert the numpy array to that format
         geometry = o3d.geometry.PointCloud()
-        geometry.points = o3d.utility.Vector3dVector(table)
+        try:
+            geometry.points = o3d.utility.Vector3dVector(table)
+        except RuntimeError as _:
+            print("Warning: Failed to convert input table to open3d PointCloud. Falling back to an empty point cloud.")
+            geometry.points = o3d.utility.Vector3dVector(np.empty((0, 3)))  # fallback to empty point cloud if input is invalid
         return cls(geometry=geometry, **kwargs)
 
     # %% Utility functions
