@@ -261,8 +261,8 @@ class GeometryBase(ABC):
         """
         Spin up the Open3D visualizer in editing mode, which allows the user to interactively select points on the geometry.
         After the user finishes editing and closes the visualizer, the edited geometry can be returned as either a new object or by modifying the original object in place.
-        
-        No scalebar will be added to the editing visualizer, as the main purpose of this function is to allow the user to select points on the geometry, 
+
+        No scalebar will be added to the editing visualizer, as the main purpose of this function is to allow the user to select points on the geometry,
         and a scalebar may not be necessary or may even be distracting in this context. However, this can be added in the future if needed.
 
         Args:

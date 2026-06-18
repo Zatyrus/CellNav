@@ -9,7 +9,9 @@ from typing import List, Union
 ## custom dependencies
 from cellnav.core.containers.path_3d import Path3D
 from cellnav.core.helpers.geo_shape_helper import GeoShapeHelper
-from cellnav.core.helpers.estimate_magnitude_from_data import estimate_magnitude_from_data
+from cellnav.core.helpers.estimate_magnitude_from_data import (
+    estimate_magnitude_from_data,
+)
 
 __all__ = ["make_3d_path"]
 
@@ -69,7 +71,9 @@ def make_3d_path(
         rgb_array: np.ndarray = cmap(norm(color))[:, :3]
 
     if isinstance(magnitude, str) and magnitude == "auto":
-        magnitude = estimate_magnitude_from_data(path) - 2 # heuristic to adjust the scale for visualization
+        magnitude = (
+            estimate_magnitude_from_data(path) - 2
+        )  # heuristic to adjust the scale for visualization
     scale = float(np.power(10, magnitude)) * size
 
     # create lineset for the path

@@ -263,7 +263,9 @@ class SurfaceGraph:
     def get_edges(self) -> np.ndarray:
         return self._edges.get_lines()
 
-    def get_closest_node(self, point: Union[np.ndarray, List[float], Tuple[float, float, float]]) -> int:
+    def get_closest_node(
+        self, point: Union[np.ndarray, List[float], Tuple[float, float, float]]
+    ) -> int:
         """
         Find the node in the graph that is closest to the given point.
 
@@ -275,12 +277,12 @@ class SurfaceGraph:
         """
         if len(point) != 3:
             raise ValueError(f"Point must be a 3D coordinate, got {point}")
-        
+
         if isinstance(point, (list, tuple)):
             point = np.array(point)
-            
+
         distances = np.linalg.norm(self._vertices.get_points() - point, axis=1)
-        return np.argmin(distances, axis = 0)
+        return np.argmin(distances, axis=0)
 
     # %% Path and distance queries
     def get_shortest_path(self, source: int, target: int, **kwargs) -> List[int]:

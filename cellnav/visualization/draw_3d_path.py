@@ -1,6 +1,5 @@
 ## dependencies
 import numpy as np
-import open3d as o3d
 
 from typing import List, Union
 
@@ -31,7 +30,7 @@ def draw_3d_path(
         magnitude (Union[str, float], optional): The magnitude for the path. Defaults to "auto".
         scalebar (Union[float, int, bool], optional): The scale bar for the visualization. Defaults to False.
         draw_faces (bool, optional): Whether to draw faces for the path. Defaults to False.
-        
+
     Returns:
         None: This function does not return anything. It opens an interactive visualization window.
     """

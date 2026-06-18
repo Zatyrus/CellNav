@@ -9,14 +9,22 @@ from typing import Union
 ## custom dependencies
 from cellnav.core.framework.surface_graph import SurfaceGraph
 from cellnav.core.helpers.geo_shape_helper import GeoShapeHelper
-from cellnav.core.helpers.estimate_magnitude_from_data import estimate_magnitude_from_data
+from cellnav.core.helpers.estimate_magnitude_from_data import (
+    estimate_magnitude_from_data,
+)
 from cellnav.core.helpers.draw_geometries import draw_geometries
 
 __all__ = ["shortest_path_interactive"]
 
 
 # %% Visualization functions
-def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int, scalebar: Union[float, int, bool] = False, size: Union[float, int] = 1.0) -> None:
+def shortest_path_interactive(
+    graph: SurfaceGraph,
+    source: int,
+    target: int,
+    scalebar: Union[float, int, bool] = False,
+    size: Union[float, int] = 1.0,
+) -> None:
     """Spin up an interactive visualization of the shortest path between source and target nodes in the given surface graph.
 
     Args:
@@ -34,7 +42,9 @@ def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int, sca
     # select base wireframe for visualization
     wireframe = copy(graph.edges)
     path = graph.get_shortest_path(source, target)
-    approximate_scaler = np.power(10, estimate_magnitude_from_data(graph.vertices.get_points()) - 1)
+    approximate_scaler = np.power(
+        10, estimate_magnitude_from_data(graph.vertices.get_points()) - 1
+    )
 
     # create lineset for the path
     path_edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
@@ -54,7 +64,9 @@ def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int, sca
     intermediate_nodes = []
     for node in path[1:-1]:
         sphere = GeoShapeHelper.generate_sphere_on_point(
-            wireframe.points[node], radius=size * 0.75 * approximate_scaler, color=[1, 0, 0]
+            wireframe.points[node],
+            radius=size * 0.75 * approximate_scaler,
+            color=[1, 0, 0],
         )  # red for intermediate nodes
         intermediate_nodes.append(sphere)
 
@@ -71,5 +83,5 @@ def shortest_path_interactive(graph: SurfaceGraph, source: int, target: int, sca
         [path_lineset, wireframe.geometry, start_sphere, end_sphere]
         + intermediate_nodes,
         scalebar=scalebar,
-        window_name=f"Shortest Path from Node {source} to Node {target}"
+        window_name=f"Shortest Path from Node {source} to Node {target}",
     )

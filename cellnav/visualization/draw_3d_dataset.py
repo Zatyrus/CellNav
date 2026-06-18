@@ -1,6 +1,5 @@
 ## dependencies
 import numpy as np
-import open3d as o3d
 
 from typing import List, Union
 
