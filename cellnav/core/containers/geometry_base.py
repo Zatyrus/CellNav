@@ -536,14 +536,14 @@ class GeometryBase(ABC):
         else:
             raise ValueError("Can only multiply by a scalar (int or float).")
         
-    def __eq__(self, other: "GeometryBase") -> bool:
+    def __eq__(self, other: "object") -> bool:
         """
         Define the equality operator for GeometryBase objects.
         This can be used to compare two geometries for equality by comparing their underlying Open3D geometries.
 
         Args:
-            other (GeometryBase): The other geometry to compare with this geometry.
-            
+            other (object): The other object to compare with this geometry.
+
         Raises:
             NotImplementedError: If the other object is not an instance of GeometryBase.
             

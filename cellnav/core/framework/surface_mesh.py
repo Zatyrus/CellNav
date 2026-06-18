@@ -351,7 +351,7 @@ class SurfaceMesh(GeometryBase):
         return len(self._geometry.vertices)
     
     @overrides
-    def __add__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+    def __add__(self, other: "GeometryBase") -> "SurfaceMesh":
         if not isinstance(other, SurfaceMesh):
             raise TypeError(f"Unsupported operand type(s) for +: 'SurfaceMesh' and '{type(other).__name__}'")
         
@@ -359,20 +359,20 @@ class SurfaceMesh(GeometryBase):
         return SurfaceMesh.from_o3d(combined_geometry)
     
     @overrides
-    def __sub__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+    def __sub__(self, other: "GeometryBase") -> "SurfaceMesh":
         if not isinstance(other, SurfaceMesh):
             raise TypeError(f"Unsupported operand type(s) for -: 'SurfaceMesh' and '{type(other).__name__}'")
         raise NotImplementedError("Subtraction of SurfaceMesh instances is not currently implemented.")
     
     @overrides
-    def __iadd__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+    def __iadd__(self, other: "GeometryBase") -> "SurfaceMesh":
         if not isinstance(other, SurfaceMesh):
             raise TypeError(f"Unsupported operand type(s) for +=: 'SurfaceMesh' and '{type(other).__name__}'")
         self._geometry += other.geometry
         return self
     
     @overrides
-    def __isub__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+    def __isub__(self, other: "GeometryBase") -> "SurfaceMesh":
         if not isinstance(other, SurfaceMesh):
             raise TypeError(f"Unsupported operand type(s) for -=: 'SurfaceMesh' and '{type(other).__name__}'")
         raise NotImplementedError("In-place subtraction of SurfaceMesh instances is not currently implemented.")
