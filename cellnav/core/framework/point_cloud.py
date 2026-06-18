@@ -682,9 +682,23 @@ class PointCloud(GeometryBase):
     def __sub__(self, other: "PointCloud") -> "PointCloud":
         if not isinstance(other, PointCloud):
             raise ValueError("Can only subtract another PointCloud object.")
-        difference_geometry = self._geometry - other.geometry
-        return PointCloud.from_o3d(difference_geometry)
+        
+        # compute the set difference of the points in self and other
+        new_points = np.array([point for point in self.points if point not in other.points])
+        if new_points.size == 0:
+            self._geometry.points = o3d.utility.Vector3dVector(np.empty((0, 3)))
+            self._geometry.colors = o3d.utility.Vector3dVector(np.empty((0, 3)))
+            return self
     
+        new_pcd = o3d.geometry.PointCloud()
+        new_pcd.points = o3d.utility.Vector3dVector(new_points)
+        
+        # if colors are present, we need to filter them as well
+        new_colors = np.array([color for point, color in zip(self.points, self.colors) if point not in other.points]) if self._geometry.colors else np.array([])
+        new_pcd.colors = o3d.utility.Vector3dVector(new_colors) if new_colors.size > 0 else o3d.utility.Vector3dVector(np.empty((0, 3)))
+        
+        return PointCloud.from_o3d(new_pcd)
+
     @overrides
     def __iadd__(self, other: "PointCloud") -> "PointCloud":
         if not isinstance(other, PointCloud):
@@ -696,7 +710,22 @@ class PointCloud(GeometryBase):
     def __isub__(self, other: "PointCloud") -> "PointCloud":
         if not isinstance(other, PointCloud):
             raise ValueError("Can only subtract another PointCloud object.")
-        self._geometry -= other.geometry
+        
+        # compute the set difference of the points in self and other
+        new_points = np.array([point for point in self.points if point not in other.points])
+        if new_points.size == 0:
+            self._geometry.points = o3d.utility.Vector3dVector(np.empty((0, 3)))
+            self._geometry.colors = o3d.utility.Vector3dVector(np.empty((0, 3)))
+            return self
+    
+        new_pcd = o3d.geometry.PointCloud()
+        new_pcd.points = o3d.utility.Vector3dVector(new_points)
+        
+        # if colors are present, we need to filter them as well
+        new_colors = np.array([color for point, color in zip(self.points, self.colors) if point not in other.points]) if self._geometry.colors else np.array([])
+        new_pcd.colors = o3d.utility.Vector3dVector(new_colors) if new_colors.size > 0 else o3d.utility.Vector3dVector(np.empty((0, 3)))
+            
+        self._geometry = new_pcd
         return self
 
     # %% Properties

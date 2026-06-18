@@ -57,8 +57,9 @@ class GeometryBase(ABC):
         Post initialization function that can be used to perform any additional setup after the object has been initialized.
         This is a placeholder for now, but can be used in the future to set up additional properties or perform checks on the geometry.
         """
-        # default gray color for all geometries
-        self.paint_uniform_color((0.5, 0.5, 0.5))  
+        # default gray color for all geometries that are not already colored (e.g. meshes with vertex colors or point clouds with point colors)
+        if len(self) != len(self.colors):
+            self.paint_uniform_color((0.5, 0.5, 0.5))  
 
     # %% Classmethods
     @classmethod
