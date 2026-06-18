@@ -351,20 +351,20 @@ class GeometryBase(ABC):
 
         print(
             """
-            -- Mouse view control --
+            == Mouse view control ==
                 Left button + drag         : Rotate.
                 Ctrl + left button + drag  : Translate.
                 Wheel button + drag        : Translate.
                 Shift + left button + drag : Roll.
                 Wheel                      : Zoom in/out.
 
-            -- Keyboard view control --
+            == Keyboard view control ==
                 [/]          : Increase/decrease field of view.
                 R            : Reset view point.
                 Ctrl/Cmd + C : Copy current view status into the clipboard.
                 Ctrl/Cmd + V : Paste view status from clipboard.
 
-            -- General control --
+            == General control ==
                 Q, Esc       : Exit window.
                 H            : Print help message.
                 P, PrtScn    : Take a screen capture.
@@ -372,7 +372,7 @@ class GeometryBase(ABC):
                 O            : Take a capture of current rendering settings.
                 Alt + Enter  : Toggle between full screen and windowed mode.
 
-            -- Render mode control --
+            == Render mode control ==
                 L            : Turn on/off lighting.
                 +/-          : Increase/decrease point size.
                 Ctrl + +/-   : Increase/decrease width of geometry::LineSet.
@@ -384,7 +384,7 @@ class GeometryBase(ABC):
                 T            : Toggle among image render:
                             no stretch / keep ratio / freely stretch.
 
-            -- Color control --
+            == Color control ==
                 0..4,9       : Set point cloud color option.
                             0 - Default behavior, render point color.
                             1 - Render point color.
@@ -406,7 +406,7 @@ class GeometryBase(ABC):
                             3 - WINTER color map.
                             4 - HOT color map.
                             
-            -- Editing control --
+            == Editing control ==
                 Y            : Lock Y-Axis when picking points.
                 X            : Lock X-Axis when picking points.
                 Z            : Lock Z-Axis when picking points.
@@ -414,6 +414,10 @@ class GeometryBase(ABC):
                 K            : Lock view and start picking points. Drag to select points, then release to finish picking.
                 C            : confirm selection of points when picking points. Press K again to start a new selection.
                 S            : Save selected points to a .ply file when picking points.
+                
+            == Point picking mode ==
+                Shift + Mouse left button : Select points by clicking. Get points by calling vis.get_picked_points() after selection.
+                Shift + Mouse right button : Deselect points. Get points by calling vis.get_picked_points() after selection.
             """
         )
 
