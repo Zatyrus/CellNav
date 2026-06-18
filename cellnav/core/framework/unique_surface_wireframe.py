@@ -88,7 +88,9 @@ class UniqueSurfaceWireframe(SurfaceWireframe):
 
     @classmethod
     @overrides
-    def from_dict(cls, geometry_dict: Dict[str, Optional[Any]], **kwargs) -> "UniqueSurfaceWireframe":
+    def from_dict(
+        cls, geometry_dict: Dict[str, Optional[Any]], **kwargs
+    ) -> "UniqueSurfaceWireframe":
         points = o3d.utility.Vector3dVector(geometry_dict["points"])
         lines = o3d.utility.Vector2iVector(geometry_dict["lines"])
         geometry = o3d.geometry.LineSet(points=points, lines=lines)

@@ -59,7 +59,7 @@ class GeometryBase(ABC):
         """
         # default gray color for all geometries that are not already colored (e.g. meshes with vertex colors or point clouds with point colors)
         if len(self) != len(self.colors):
-            self.paint_uniform_color((0.5, 0.5, 0.5))  
+            self.paint_uniform_color((0.5, 0.5, 0.5))
 
     # %% Classmethods
     @classmethod
@@ -97,17 +97,19 @@ class GeometryBase(ABC):
             GeometryBase: The created geometry object.
         """
         pass
-    
+
     @classmethod
     @abstractmethod
-    def from_dict(cls, geometry_dict: Dict[str, Optional[Any]], **kwargs) -> "GeometryBase":
+    def from_dict(
+        cls, geometry_dict: Dict[str, Optional[Any]], **kwargs
+    ) -> "GeometryBase":
         """
         Create a GeometryBase object from a dictionary representation.
         This can be used to create a geometry object from a serialized format (e.g. JSON) or from a custom dictionary representation.
 
         Args:
             geometry_dict (Dict[str, Any]): The dictionary representation of the geometry object.
-            
+
         Returns:
             GeometryBase: The created geometry object.
         """
@@ -466,7 +468,7 @@ class GeometryBase(ABC):
 
         Args:
             other (GeometryBase): The other geometry to add to this geometry.
-            
+
         Raises:
             TypeError: If the other object is not an instance of GeometryBase.
 
@@ -474,7 +476,7 @@ class GeometryBase(ABC):
             GeometryBase: A new geometry object representing the sum of the two geometries.
         """
         pass
-    
+
     @abstractmethod
     def __sub__(self, other: "GeometryBase") -> "GeometryBase":
         """
@@ -483,15 +485,15 @@ class GeometryBase(ABC):
 
         Args:
             other (GeometryBase): The other geometry to subtract from this geometry.
-            
+
         Raises:
             TypeError: If the other object is not an instance of GeometryBase.
-            
+
         Returns:
             GeometryBase: A new geometry object representing the difference between the two geometries.
         """
         pass
-    
+
     @abstractmethod
     def __iadd__(self, other: "GeometryBase") -> "GeometryBase":
         """
@@ -500,15 +502,15 @@ class GeometryBase(ABC):
 
         Args:
             other (GeometryBase): The other geometry to add to this geometry.
-            
+
         Raises:
             TypeError: If the other object is not an instance of GeometryBase.
-            
+
         Returns:
             GeometryBase: The modified geometry object after adding the other geometry.
-        """        
+        """
         pass
-    
+
     @abstractmethod
     def __isub__(self, other: "GeometryBase") -> "GeometryBase":
         """
@@ -517,15 +519,15 @@ class GeometryBase(ABC):
 
         Args:
             other (GeometryBase): The other geometry to subtract from this geometry.
-            
+
         Raises:
             TypeError: If the other object is not an instance of GeometryBase.
-            
+
         Returns:
             GeometryBase: The modified geometry object after subtracting the other geometry.
         """
         pass
-    
+
     def __mul__(self, scaler: Union[float, int]) -> "GeometryBase":
         """
         Define the multiplication operator for GeometryBase objects.
@@ -533,16 +535,18 @@ class GeometryBase(ABC):
 
         Args:
             scaler (Union[float, GeometryBase]): The scalar or geometry to multiply with this geometry.
-            
+
         Returns:
             GeometryBase: A new geometry object representing the result of the multiplication.
         """
         if isinstance(scaler, (int, float)):
-            scaled_geometry = deepcopy(self._geometry).scale(scaler, center=self.get_center_of_mass())
+            scaled_geometry = deepcopy(self._geometry).scale(
+                scaler, center=self.get_center_of_mass()
+            )
             return self.__class__.from_o3d(scaled_geometry)
         else:
             raise ValueError("Can only multiply by a scalar (int or float).")
-    
+
     def __imul__(self, scaler: Union[float, int]) -> "GeometryBase":
         """
         Define the in-place multiplication operator for GeometryBase objects.
@@ -550,7 +554,7 @@ class GeometryBase(ABC):
 
         Args:
             scaler (Union[float, GeometryBase]): The scalar or geometry to multiply with this geometry.
-            
+
         Returns:
             GeometryBase: The modified geometry object after the multiplication.
         """
@@ -559,7 +563,7 @@ class GeometryBase(ABC):
             return self
         else:
             raise ValueError("Can only multiply by a scalar (int or float).")
-        
+
     def __eq__(self, other: "object") -> bool:
         """
         Define the equality operator for GeometryBase objects.
@@ -570,19 +574,32 @@ class GeometryBase(ABC):
 
         Raises:
             NotImplementedError: If the other object is not an instance of GeometryBase.
-            
+
         Returns:
             bool: True if the geometries are equal, False otherwise.
         """
         if not isinstance(other, GeometryBase):
-            raise NotImplementedError("Can only compare with another GeometryBase object.")
+            raise NotImplementedError(
+                "Can only compare with another GeometryBase object."
+            )
         match (type(self._geometry), type(other._geometry)):
             case (o3d.geometry.PointCloud, o3d.geometry.PointCloud):
-                return self._geometry.points == other._geometry.points and self._geometry.colors == other._geometry.colors
+                return (
+                    self._geometry.points == other._geometry.points
+                    and self._geometry.colors == other._geometry.colors
+                )
             case (o3d.geometry.TriangleMesh, o3d.geometry.TriangleMesh):
-                return self._geometry.vertices == other._geometry.vertices and self._geometry.triangles == other._geometry.triangles and self._geometry.colors == other._geometry.colors
+                return (
+                    self._geometry.vertices == other._geometry.vertices
+                    and self._geometry.triangles == other._geometry.triangles
+                    and self._geometry.colors == other._geometry.colors
+                )
             case (o3d.geometry.LineSet, o3d.geometry.LineSet):
-                return self._geometry.points == other._geometry.points and self._geometry.lines == other._geometry.lines and self._geometry.colors == other._geometry.colors
+                return (
+                    self._geometry.points == other._geometry.points
+                    and self._geometry.lines == other._geometry.lines
+                    and self._geometry.colors == other._geometry.colors
+                )
             case _:
                 raise TypeError("Cannot compare geometries of different types.")
 
