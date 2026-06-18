@@ -69,11 +69,11 @@ class SurfaceMesh(GeometryBase):
         Returns:
             np.ndarray: The vertex coordinates as a numpy array.
         """
-        if ind < 0 or ind >= len(self.geometry.vertices):
+        if ind < 0 or ind >= len(self._geometry.vertices):
             raise IndexError(
-                f"Index {ind} is out of bounds for vertices array of length {len(self.geometry.vertices)}."
+                f"Index {ind} is out of bounds for vertices array of length {len(self._geometry.vertices)}."
             )
-        return np.asarray(self.geometry.vertices)[ind]
+        return np.asarray(self._geometry.vertices)[ind]
 
     def get_vertices(self) -> np.ndarray:
         """Return all vertices of the mesh as a numpy array.
@@ -81,7 +81,7 @@ class SurfaceMesh(GeometryBase):
         Returns:
             np.ndarray: An array of shape (N, 3) containing the coordinates of all vertices.
         """
-        return np.asarray(self.geometry.vertices)
+        return np.asarray(self._geometry.vertices)
 
     def get_triangle(self, ind: int) -> np.ndarray:
         """Return the triangle at the specified index.
@@ -95,11 +95,11 @@ class SurfaceMesh(GeometryBase):
         Returns:
             np.ndarray: The triangle vertices as a numpy array.
         """
-        if ind < 0 or ind >= len(self.geometry.triangles):
+        if ind < 0 or ind >= len(self._geometry.triangles):
             raise IndexError(
-                f"Index {ind} is out of bounds for triangles array of length {len(self.geometry.triangles)}."
+                f"Index {ind} is out of bounds for triangles array of length {len(self._geometry.triangles)}."
             )
-        triangle_indices = np.asarray(self.geometry.triangles)[ind]
+        triangle_indices = np.asarray(self._geometry.triangles)[ind]
         triangle_vertices = self.get_vertices()[triangle_indices]
         return triangle_vertices
 
@@ -110,7 +110,7 @@ class SurfaceMesh(GeometryBase):
             np.ndarray: An array of shape (M, 3) containing the vertices of all triangles.
         """
         triangles = []
-        for i in range(len(self.geometry.triangles)):
+        for i in range(len(self._geometry.triangles)):
             triangles.append(self.get_triangle(i))
         return np.array(triangles)
 
@@ -120,7 +120,7 @@ class SurfaceMesh(GeometryBase):
         Returns:
             float: The surface area of the mesh.
         """
-        return self.geometry.get_surface_area()
+        return self._geometry.get_surface_area()
 
     def get_volume(self) -> float:
         """
@@ -133,9 +133,9 @@ class SurfaceMesh(GeometryBase):
         Returns:
             float: The volume enclosed by the mesh.
         """
-        if not AlphaShapeHelper.check_watertight(self.geometry):
+        if not AlphaShapeHelper.check_watertight(self._geometry):
             raise ValueError("Mesh must be watertight to compute volume.")
-        return self.geometry.get_volume()
+        return self._geometry.get_volume()
 
     # %% Transformations
     def decimate_mesh(
@@ -150,20 +150,20 @@ class SurfaceMesh(GeometryBase):
         Returns:
             SurfaceMesh: Either the modified mesh (if inplace=True) or a new SurfaceMesh instance containing the decimated mesh (if inplace=False).
         """
-        decimated_mesh = self.geometry.simplify_quadric_decimation(
+        decimated_mesh = self._geometry.simplify_quadric_decimation(
             target_number_of_triangles=target_number_of_triangles
         )
 
         if self.config["verbose"]:
             print(
-                f"Original mesh had {len(self.geometry.vertices)} vertices and {len(self.geometry.triangles)} triangles."
+                f"Original mesh had {len(self._geometry.vertices)} vertices and {len(self._geometry.triangles)} triangles."
             )
             print(
                 f"Decimated (Simplified) mesh has {len(decimated_mesh.vertices)} vertices and {len(decimated_mesh.triangles)} triangles."
             )
 
         if inplace:
-            self.geometry = decimated_mesh
+            self._geometry = decimated_mesh
             return self
         else:
             return SurfaceMesh.from_o3d(decimated_mesh)
@@ -181,20 +181,20 @@ class SurfaceMesh(GeometryBase):
             SurfaceMesh: Either the modified mesh (if inplace=True) or a new SurfaceMesh instance containing the subdivided mesh (if inplace=False).
         """
 
-        subdivided_mesh = self.geometry.subdivide_midpoint(
+        subdivided_mesh = self._geometry.subdivide_midpoint(
             number_of_iterations=number_of_iterations
         )
 
         if self.config["verbose"]:
             print(
-                f"Original mesh had {len(self.geometry.vertices)} vertices and {len(self.geometry.triangles)} triangles."
+                f"Original mesh had {len(self._geometry.vertices)} vertices and {len(self._geometry.triangles)} triangles."
             )
             print(
                 f"Subdivided mesh has {len(subdivided_mesh.vertices)} vertices and {len(subdivided_mesh.triangles)} triangles."
             )
 
         if inplace:
-            self.geometry = subdivided_mesh
+            self._geometry = subdivided_mesh
             return self
         else:
             return SurfaceMesh.from_o3d(subdivided_mesh)
@@ -206,7 +206,7 @@ class SurfaceMesh(GeometryBase):
         Returns:
             bool: True if the mesh is watertight, False otherwise.
         """
-        return AlphaShapeHelper.check_watertight(self.geometry)
+        return AlphaShapeHelper.check_watertight(self._geometry)
 
     def clean_mesh(self, inplace: bool = True) -> "SurfaceMesh":
         """Clean the mesh by removing duplicate vertices, degenerate triangles, and non-manifold edges.
@@ -217,9 +217,9 @@ class SurfaceMesh(GeometryBase):
         Returns:
             SurfaceMesh: Either the modified mesh (if inplace=True) or a new SurfaceMesh instance containing the cleaned mesh (if inplace=False).
         """
-        cleaned_mesh = AlphaShapeHelper.clean_mesh(self.geometry)
+        cleaned_mesh = AlphaShapeHelper.clean_mesh(self._geometry)
         if inplace:
-            self.geometry = cleaned_mesh
+            self._geometry = cleaned_mesh
             return self
         else:
             return SurfaceMesh.from_o3d(cleaned_mesh)
@@ -237,10 +237,10 @@ class SurfaceMesh(GeometryBase):
             SurfaceMesh: Either the modified mesh (if inplace=True) or a new SurfaceMesh instance containing the clustered mesh (if inplace=False).
         """
         clustered_mesh = AlphaShapeHelper.cluster_mesh(
-            self.geometry, cluster_by=cluster_by
+            self._geometry, cluster_by=cluster_by
         )
         if inplace:
-            self.geometry = clustered_mesh
+            self._geometry = clustered_mesh
             return self
         else:
             return SurfaceMesh.from_o3d(clustered_mesh)
@@ -254,9 +254,9 @@ class SurfaceMesh(GeometryBase):
         Returns:
             SurfaceMesh: Either the modified mesh (if inplace=True) or a new SurfaceMesh instance containing the repaired mesh (if inplace=False).
         """
-        repaired_mesh = AlphaShapeHelper.repair_mesh(self.geometry)
+        repaired_mesh = AlphaShapeHelper.repair_mesh(self._geometry)
         if inplace:
-            self.geometry = repaired_mesh
+            self._geometry = repaired_mesh
             return self
         else:
             return SurfaceMesh.from_o3d(repaired_mesh)
@@ -276,10 +276,10 @@ class SurfaceMesh(GeometryBase):
             SurfaceMesh: Either the modified mesh (if inplace=True) or a new SurfaceMesh instance containing the watertight mesh (if inplace=False).
         """
         watertight_mesh = AlphaShapeHelper.make_watertight(
-            self.geometry, cluster_by=cluster_by
+            self._geometry, cluster_by=cluster_by
         )
         if inplace:
-            self.geometry = watertight_mesh
+            self._geometry = watertight_mesh
             return self
         else:
             return SurfaceMesh.from_o3d(watertight_mesh)
@@ -301,7 +301,7 @@ class SurfaceMesh(GeometryBase):
             cluster_by=cluster_by, inplace=False
         )
         if inplace:
-            self.geometry = cleaned_and_clustered_mesh.geometry
+            self._geometry = cleaned_and_clustered_mesh.geometry
             return self
         else:
             return cleaned_and_clustered_mesh
@@ -323,7 +323,7 @@ class SurfaceMesh(GeometryBase):
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
 
-        o3d.io.write_triangle_mesh(file_path, self.geometry)
+        o3d.io.write_triangle_mesh(file_path, self._geometry)
 
     @overrides
     def load(self, file_path: Optional[str] = None) -> None:
@@ -339,16 +339,43 @@ class SurfaceMesh(GeometryBase):
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
 
-        self.geometry = o3d.io.read_triangle_mesh(file_path)
+        self._geometry = o3d.io.read_triangle_mesh(file_path)
 
     # %% Dunder methods
     @overrides
     def __repr__(self) -> str:
-        return f"SurfaceMesh with {len(self.geometry.vertices)} vertices and {len(self.geometry.triangles)} triangles.\nThe mesh is {'watertight' if self.check_watertight() else 'not watertight'}."
+        return f"SurfaceMesh with {len(self._geometry.vertices)} vertices and {len(self._geometry.triangles)} triangles.\nThe mesh is {'watertight' if self.check_watertight() else 'not watertight'}."
 
     @overrides
     def __len__(self) -> int:
-        return len(self.geometry.vertices)
+        return len(self._geometry.vertices)
+    
+    @overrides
+    def __add__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for +: 'SurfaceMesh' and '{type(other).__name__}'")
+        
+        combined_geometry = self._geometry + other.geometry
+        return SurfaceMesh.from_o3d(combined_geometry)
+    
+    @overrides
+    def __sub__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for -: 'SurfaceMesh' and '{type(other).__name__}'")
+        raise NotImplementedError("Subtraction of SurfaceMesh instances is not currently implemented.")
+    
+    @overrides
+    def __iadd__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for +=: 'SurfaceMesh' and '{type(other).__name__}'")
+        self._geometry += other.geometry
+        return self
+    
+    @overrides
+    def __isub__(self, other: "SurfaceMesh") -> "SurfaceMesh":
+        if not isinstance(other, SurfaceMesh):
+            raise TypeError(f"Unsupported operand type(s) for -=: 'SurfaceMesh' and '{type(other).__name__}'")
+        raise NotImplementedError("In-place subtraction of SurfaceMesh instances is not currently implemented.")
 
     # %% Properties
     @property
@@ -358,7 +385,7 @@ class SurfaceMesh(GeometryBase):
         Returns:
             o3d.utility.Vector3dVector: The vertices of the mesh.
         """
-        return self.geometry.vertices
+        return self._geometry.vertices
 
     @vertices.setter
     def vertices(self, vertex_array: Union[np.ndarray, o3d.utility.Vector3dVector]):
@@ -370,7 +397,7 @@ class SurfaceMesh(GeometryBase):
         """
         if isinstance(vertex_array, np.ndarray):
             vertex_array = o3d.utility.Vector3dVector(vertex_array)
-        self.geometry.vertices = vertex_array
+        self._geometry.vertices = vertex_array
 
     @property
     def triangles(self) -> o3d.utility.Vector3iVector:
@@ -379,7 +406,7 @@ class SurfaceMesh(GeometryBase):
         Returns:
             o3d.utility.Vector3iVector: The triangles of the mesh.
         """
-        return self.geometry.triangles
+        return self._geometry.triangles
 
     @triangles.setter
     def triangles(self, triangle_array: Union[np.ndarray, o3d.utility.Vector3iVector]):
@@ -390,12 +417,12 @@ class SurfaceMesh(GeometryBase):
         """
         if isinstance(triangle_array, np.ndarray):
             triangle_array = o3d.utility.Vector3iVector(triangle_array)
-        self.geometry.triangles = triangle_array
+        self._geometry.triangles = triangle_array
 
     @property
     @overrides
     def colors(self) -> Union[np.ndarray, o3d.utility.Vector3dVector]:
-        return self.geometry.vertex_colors
+        return self._geometry.vertex_colors
 
     @colors.setter
     @overrides
@@ -404,4 +431,4 @@ class SurfaceMesh(GeometryBase):
     ) -> None:
         if isinstance(color_array, np.ndarray):
             color_array = o3d.utility.Vector3dVector(color_array)
-        self.geometry.vertex_colors = color_array
+        self._geometry.vertex_colors = color_array

@@ -6,7 +6,7 @@ from copy import deepcopy
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Union, Optional
 
-__all_ = ["GeometryBase"]
+__all__ = ["GeometryBase"]
 
 
 ## main class implementation - Cell membrane extraction tool
@@ -57,7 +57,9 @@ class GeometryBase(ABC):
         Post initialization function that can be used to perform any additional setup after the object has been initialized.
         This is a placeholder for now, but can be used in the future to set up additional properties or perform checks on the geometry.
         """
-        pass
+        # default gray color for all geometries that are not already colored (e.g. meshes with vertex colors or point clouds with point colors)
+        if len(self) != len(self.colors):
+            self.paint_uniform_color((0.5, 0.5, 0.5))  
 
     # %% Classmethods
     @classmethod
@@ -175,7 +177,7 @@ class GeometryBase(ABC):
 
         Args:
             scale_factor (float): The scale factor.
-            center (Union[np.ndarray, bool], optional): The center point around which to scale. If True, the center of mass is used. Defaults to True.
+            center (Union[np.ndarray, bool], optional): The center point around which to scale. If not False, the center of mass (True) or provided coordinates are used to first center the geometry. Defaults to True.
             inplace (bool, optional): Whether to modify the geometry in place. Defaults to True.
 
         Returns:
@@ -416,11 +418,149 @@ class GeometryBase(ABC):
     # %% Dunder methods
     @abstractmethod
     def __repr__(self) -> str:
+        """Return a string representation of the geometry object, including its type and basic properties (e.g. number of points, vertices, edges).
+
+        Returns:
+            str: A string representation of the geometry object.
+        """
         pass
 
     @abstractmethod
     def __len__(self) -> int:
+        """Return the number of points or vertices in the geometry object.
+
+        Returns:
+            int: The number of points or vertices in the geometry object.
+        """
         pass
+
+    @abstractmethod
+    def __add__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the addition operator for GeometryBase objects.
+        This will allow us to combine two geometries into one by adding their underlying Open3D geometries together.
+
+        Args:
+            other (GeometryBase): The other geometry to add to this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+
+        Returns:
+            GeometryBase: A new geometry object representing the sum of the two geometries.
+        """
+        pass
+    
+    @abstractmethod
+    def __sub__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the subtraction operator for GeometryBase objects.
+        This will allow us to subtract one geometry from another by removing the points of the second geometry from the first geometry.
+
+        Args:
+            other (GeometryBase): The other geometry to subtract from this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            GeometryBase: A new geometry object representing the difference between the two geometries.
+        """
+        pass
+    
+    @abstractmethod
+    def __iadd__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the in-place addition operator for GeometryBase objects.
+        This will allow us to add another geometry to this geometry in place by modifying the underlying Open3D geometry of this object.
+
+        Args:
+            other (GeometryBase): The other geometry to add to this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            GeometryBase: The modified geometry object after adding the other geometry.
+        """        
+        pass
+    
+    @abstractmethod
+    def __isub__(self, other: "GeometryBase") -> "GeometryBase":
+        """
+        Define the in-place subtraction operator for GeometryBase objects.
+        This will allow us to subtract another geometry from this geometry in place by modifying the underlying Open3D geometry of this object.
+
+        Args:
+            other (GeometryBase): The other geometry to subtract from this geometry.
+            
+        Raises:
+            TypeError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            GeometryBase: The modified geometry object after subtracting the other geometry.
+        """
+        pass
+    
+    def __mul__(self, scaler: Union[float, int]) -> "GeometryBase":
+        """
+        Define the multiplication operator for GeometryBase objects.
+        This can be used to apply a transformation (e.g. scaling) to the geometry by multiplying it with a scalar or another geometry.
+
+        Args:
+            scaler (Union[float, GeometryBase]): The scalar or geometry to multiply with this geometry.
+            
+        Returns:
+            GeometryBase: A new geometry object representing the result of the multiplication.
+        """
+        if isinstance(scaler, (int, float)):
+            scaled_geometry = deepcopy(self._geometry).scale(scaler, center=self.get_center_of_mass())
+            return self.__class__.from_o3d(scaled_geometry)
+        else:
+            raise ValueError("Can only multiply by a scalar (int or float).")
+    
+    def __imul__(self, scaler: Union[float, int]) -> "GeometryBase":
+        """
+        Define the in-place multiplication operator for GeometryBase objects.
+        This can be used to apply a transformation (e.g. scaling) to the geometry in place by multiplying it with a scalar or another geometry.
+
+        Args:
+            scaler (Union[float, GeometryBase]): The scalar or geometry to multiply with this geometry.
+            
+        Returns:
+            GeometryBase: The modified geometry object after the multiplication.
+        """
+        if isinstance(scaler, (int, float)):
+            self._geometry.scale(scaler, center=self.get_center_of_mass())
+            return self
+        else:
+            raise ValueError("Can only multiply by a scalar (int or float).")
+        
+    def __eq__(self, other: "GeometryBase") -> bool:
+        """
+        Define the equality operator for GeometryBase objects.
+        This can be used to compare two geometries for equality by comparing their underlying Open3D geometries.
+
+        Args:
+            other (GeometryBase): The other geometry to compare with this geometry.
+            
+        Raises:
+            NotImplementedError: If the other object is not an instance of GeometryBase.
+            
+        Returns:
+            bool: True if the geometries are equal, False otherwise.
+        """
+        if not isinstance(other, GeometryBase):
+            raise NotImplementedError("Can only compare with another GeometryBase object.")
+        match (type(self._geometry), type(other._geometry)):
+            case (o3d.geometry.PointCloud, o3d.geometry.PointCloud):
+                return self._geometry.points == other._geometry.points and self._geometry.colors == other._geometry.colors
+            case (o3d.geometry.TriangleMesh, o3d.geometry.TriangleMesh):
+                return self._geometry.vertices == other._geometry.vertices and self._geometry.triangles == other._geometry.triangles and self._geometry.colors == other._geometry.colors
+            case (o3d.geometry.LineSet, o3d.geometry.LineSet):
+                return self._geometry.points == other._geometry.points and self._geometry.lines == other._geometry.lines and self._geometry.colors == other._geometry.colors
+            case _:
+                raise TypeError("Cannot compare geometries of different types.")
 
     # %% Properties
     @property

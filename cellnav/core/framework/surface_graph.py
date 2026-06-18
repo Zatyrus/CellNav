@@ -23,7 +23,7 @@ except ImportError:
 from cellnav.core.framework.point_cloud import PointCloud
 from cellnav.core.framework.surface_wireframe import SurfaceWireframe
 from cellnav.core.framework.unique_surface_wireframe import UniqueSurfaceWireframe
-from cellnav.core.util.geometry_transformer import GeometryTransformer
+from cellnav.util.geometry_transformer import GeometryTransformer
 
 
 __all__ = ["SurfaceGraph"]
@@ -76,9 +76,9 @@ class SurfaceGraph:
             path_LUT (Optional[ Union[Dict[int, Dict[int, List[int]]], rx.AllPairsPathMapping] ], optional): The lookup table for paths between nodes. Defaults to None.
             distance_matrix (Optional[np.ndarray], optional): The matrix of node distances for fast access. Defaults to None.
         """
-        self.vertices = vertices
-        self.edges = edges
-        self.graph = graph
+        self._vertices = vertices
+        self._edges = edges
+        self._graph = graph
 
         # set optional LUTs and distance matrix
         self._edge_length_LUT = edge_length_LUT
@@ -111,25 +111,25 @@ class SurfaceGraph:
             ValueError: If edge length LUT is not consistent with graph edges.
         """
         # check that vertices and edges are of the correct types
-        if not isinstance(self.vertices, PointCloud):
-            raise TypeError(f"Vertices must be a PointCloud, got {type(self.vertices)}")
-        if not isinstance(self.edges, (SurfaceWireframe, UniqueSurfaceWireframe)):
+        if not isinstance(self._vertices, PointCloud):
+            raise TypeError(f"Vertices must be a PointCloud, got {type(self._vertices)}")
+        if not isinstance(self._edges, (SurfaceWireframe, UniqueSurfaceWireframe)):
             raise TypeError(
-                f"Edges must be a SurfaceWireframe or UniqueSurfaceWireframe, got {type(self.edges)}"
+                f"Edges must be a SurfaceWireframe or UniqueSurfaceWireframe, got {type(self._edges)}"
             )
-        if not isinstance(self.graph, rx.PyGraph):
+        if not isinstance(self._graph, rx.PyGraph):
             raise TypeError(
-                f"Graph must be a rustworkx PyGraph, got {type(self.graph)}"
+                f"Graph must be a rustworkx PyGraph, got {type(self._graph)}"
             )
 
         # convert SurfaceWireframe to UniqueSurfaceWireframe if necessary,
         # to ensure consistent edge representation and avoid issues with duplicate edges in graph construction
-        if isinstance(self.edges, SurfaceWireframe):
-            self.edges = UniqueSurfaceWireframe.from_wireframe(self.edges)
+        if isinstance(self._edges, SurfaceWireframe):
+            self._edges = UniqueSurfaceWireframe.from_wireframe(self._edges)
 
         # make edge_length_LUT and check consistency if not provided - this is necessary for graph construction and shortest path algorithms
         if self._edge_length_LUT is None:
-            self._edge_length_LUT = GeometryTransformer.edge_length_LUT_from(self.edges)
+            self._edge_length_LUT = GeometryTransformer.edge_length_LUT_from(self._edges)
 
         # check consistency of edge_length_LUT with graph edges to catch any issues with graph construction or edge representation early on
         assert self.check_consistency_of_edge_length_LUT()
@@ -192,13 +192,13 @@ class SurfaceGraph:
 
     # %% Utility
     def get_vertices(self) -> np.ndarray:
-        return self.vertices.get_points()
+        return self._vertices.get_points()
 
     def get_edges(self) -> np.ndarray:
-        return self.edges.get_lines()
+        return self._edges.get_lines()
 
     # def get_graph(self) -> Optional[rx.PyGraph]:
-    #     return self.graph
+    #     return self._graph
 
     # def get_edge_length_LUT(self) -> Optional[Dict[Tuple[int, int], float]]:
     #     return self._edge_length_LUT
@@ -263,7 +263,7 @@ class SurfaceGraph:
         Returns:
             float: The transitivity of the graph.
         """
-        return rx.transitivity(self.graph)
+        return rx.transitivity(self._graph)
 
     def is_planar(self) -> bool:
         """Determine whether the graph is planar, meaning that it can be drawn on a plane without any edges crossing.
@@ -271,7 +271,7 @@ class SurfaceGraph:
         Returns:
             bool: True if the graph is planar, False otherwise.
         """
-        return rx.is_planar(self.graph)
+        return rx.is_planar(self._graph)
 
     def is_connected(self) -> bool:
         """Determine whether the graph is connected, meaning that there is a path between any two vertices in the graph.
@@ -279,7 +279,7 @@ class SurfaceGraph:
         Returns:
             bool: True if the graph is connected, False otherwise.
         """
-        return rx.is_connected(self.graph)
+        return rx.is_connected(self._graph)
 
     def number_of_connected_components(self) -> int:
         """
@@ -290,7 +290,7 @@ class SurfaceGraph:
         Returns:
             int: The number of connected components in the graph.
         """
-        return rx.number_connected_components(self.graph)
+        return rx.number_connected_components(self._graph)
 
     def has_negative_edge_weights(self) -> bool:
         """
@@ -300,7 +300,7 @@ class SurfaceGraph:
         Returns:
             bool: True if the graph contains negative edge weights, False otherwise.
         """
-        return bool(np.any(np.array(self.graph.edges()) < 0))
+        return bool(np.any(np.array(self._graph.edges()) < 0))
 
     # %% Graph visualization
     def draw_graph_with_matplotlib(
@@ -317,7 +317,7 @@ class SurfaceGraph:
             Optional[matplotlib.figure.Figure]: The Matplotlib figure object containing the graph visualization, or None if the graph could not be drawn.
         """
         try:
-            return mpl_draw(self.graph, **kwargs)
+            return mpl_draw(self._graph, **kwargs)
         except ImportError:
             raise ImportError(
                 "Matplotlib is not installed. Please install matplotlib to use this function."
@@ -338,7 +338,7 @@ class SurfaceGraph:
             Optional[Any]: The Graphviz figure object containing the graph visualization, or None if the graph could not be drawn.
         """
         try:
-            return graphviz_draw(self.graph, **kwargs)
+            return graphviz_draw(self._graph, **kwargs)
         except ImportError:
             raise ImportError(
                 "Graphviz is not installed. Please install graphviz to use this function."
@@ -373,7 +373,7 @@ class SurfaceGraph:
                 "Graph contains negative edge weights. Dijkstra's algorithm cannot be used.\nConsider using Bellman-Ford algorithm instead."
             )
         return rx.dijkstra_shortest_paths(
-            self.graph,
+            self._graph,
             source=source,
             target=target,
             weight_fn=weight_fn,
@@ -401,7 +401,7 @@ class SurfaceGraph:
             rx.PathMapping: The shortest path between the source and target nodes. The mapping will be a dictionary where the keys are target node indices and the values are lists of node indices representing the path from the source to that target node.
         """
         return rx.bellman_ford_shortest_paths(
-            self.graph,
+            self._graph,
             source=source,
             target=target,
             weight_fn=weight_fn,
@@ -432,7 +432,7 @@ class SurfaceGraph:
                 "Graph contains negative edge weights. Dijkstra's algorithm cannot be used.\nConsider using Bellman-Ford algorithm instead."
             )
         return rx.dijkstra_shortest_path_lengths(
-            self.graph, node=source, goal=target, edge_cost_fn=weight_fn
+            self._graph, node=source, goal=target, edge_cost_fn=weight_fn
         )
 
     def bellman_ford_shortest_distance(
@@ -451,7 +451,7 @@ class SurfaceGraph:
             rx.PathLengthMapping: The shortest distance between the source and target nodes.
         """
         return rx.bellman_ford_shortest_path_lengths(
-            self.graph, node=source, goal=target, edge_cost_fn=weight_fn
+            self._graph, node=source, goal=target, edge_cost_fn=weight_fn
         )
 
     # %% Shortest path algorithm - all pairs
@@ -476,7 +476,7 @@ class SurfaceGraph:
                 "Graph contains negative edge weights. Dijkstra's algorithm cannot be used.\nConsider using Bellman-Ford algorithm instead."
             )
         self._path_LUT = rx.all_pairs_dijkstra_shortest_paths(
-            self.graph, edge_cost_fn=weight_fn
+            self._graph, edge_cost_fn=weight_fn
         )
         return self._path_LUT
 
@@ -494,7 +494,7 @@ class SurfaceGraph:
             rx.AllPairsPathMapping: The shortest paths between all pairs of nodes.
         """
         self._path_LUT = rx.all_pairs_bellman_ford_shortest_paths(
-            self.graph, edge_cost_fn=weight_fn
+            self._graph, edge_cost_fn=weight_fn
         )
         return self._path_LUT
 
@@ -517,7 +517,7 @@ class SurfaceGraph:
             rx.AllPairsPathLengthMapping: The shortest paths between all pairs of nodes. The mapping will be a dictionary where the keys are source node indices and the values are dictionaries mapping target node indices to the shortest path from the source to that target node.
         """
         self.path_length_LUT = rx.floyd_warshall(
-            self.graph,
+            self._graph,
             weight_fn=weight_fn,
             default_weight=default_weight,
             parallel_threshold=parallel_threshold,
@@ -545,7 +545,7 @@ class SurfaceGraph:
                 "Graph contains negative edge weights. Dijkstra's algorithm cannot be used.\nConsider using Bellman-Ford algorithm instead."
             )
         self._distance_LUT = rx.all_pairs_dijkstra_path_lengths(
-            self.graph, edge_cost_fn=weight_fn
+            self._graph, edge_cost_fn=weight_fn
         )
         return self._distance_LUT
 
@@ -563,7 +563,7 @@ class SurfaceGraph:
             rx.AllPairsPathLengthMapping: The shortest distances between all pairs of nodes. The mapping will be a dictionary where the keys are source node indices and the values are dictionaries mapping target node indices to the shortest distance from the source to that target node.
         """
         self._distance_LUT = rx.all_pairs_bellman_ford_path_lengths(
-            self.graph, edge_cost_fn=weight_fn
+            self._graph, edge_cost_fn=weight_fn
         )
         return self._distance_LUT
 
@@ -579,8 +579,8 @@ class SurfaceGraph:
         - Bellman-Ford algorithm
         - Floyd-Warshall algorithm
         """
-        E: float = self.edges.get_lines().shape[0]
-        V: float = self.vertices.get_points().shape[0]
+        E: float = self._edges.get_lines().shape[0]
+        V: float = self._vertices.get_points().shape[0]
 
         # Compute the time complexity of each implemented algorithm
         def dijkstra_time_complexity(E: float, V: float) -> float:
@@ -643,15 +643,15 @@ class SurfaceGraph:
 
         # initialize distance matrix with zeros
         self._distance_matrix = np.zeros(
-            (self.graph.num_nodes(), self.graph.num_nodes())
+            (self._graph.num_nodes(), self._graph.num_nodes())
         )
         # compute the distance matrix from the shortest path LUT - with progress bar
         with tqdm(
-            total=self.graph.num_nodes(),
+            total=self._graph.num_nodes(),
             desc="Building distance matrix from LUT",
             disable=silent,
         ) as pbar:
-            for i in range(self.graph.num_nodes()):
+            for i in range(self._graph.num_nodes()):
                 # triangular indexing to avoid redundant computations, as the distance matrix is symmetric and the diagonal is zero
                 self._distance_matrix[i, i + 1 :] = np.array(
                     list(distance_LUT[i].values())
@@ -801,7 +801,7 @@ class SurfaceGraph:
         # create frozensets of the edge keys in the LUT and the graph edges for efficient comparison
         # frozensets are used to ensure that the order of edges does not affect the comparison
         frozen_edge_keys = frozenset(self._edge_length_LUT.keys())
-        frozen_graph_edges = frozenset(self.graph.edge_list())
+        frozen_graph_edges = frozenset(self._graph.edge_list())
 
         # check for consistency
         if frozen_edge_keys != frozen_graph_edges:
@@ -815,7 +815,7 @@ class SurfaceGraph:
 
     # %% Dunder methods
     def __repr__(self) -> str:
-        return f"SurfaceGraph with {len(self.vertices.points)} vertices and {len(self.edges.lines)} edges.\nThe graph is {'connected' if self.is_connected() else 'disconnected'} with {self.number_of_connected_components()} connected components. The graph is {'planar' if self.is_planar() else 'non-planar'} with a transitivity of {self.transitivity():.4f}.\nThe graph has {'negative edge weights' if self.has_negative_edge_weights() else 'no negative edge weights'}."
+        return f"SurfaceGraph with {len(self._vertices.points)} vertices and {len(self._edges.lines)} edges.\nThe graph is {'connected' if self.is_connected() else 'disconnected'} with {self.number_of_connected_components()} connected components. The graph is {'planar' if self.is_planar() else 'non-planar'} with a transitivity of {self.transitivity():.4f}.\nThe graph has {'negative edge weights' if self.has_negative_edge_weights() else 'no negative edge weights'}."
 
     def __str__(self) -> str:
         return self.__repr__()

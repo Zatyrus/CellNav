@@ -68,11 +68,11 @@ class SurfaceWireframe(GeometryBase):
         Returns:
             np.ndarray: The point at the specified index.
         """
-        if ind < 0 or ind >= len(self.geometry.points):
+        if ind < 0 or ind >= len(self._geometry.points):
             raise IndexError(
-                f"Index {ind} is out of bounds for points array of length {len(self.geometry.points)}."
+                f"Index {ind} is out of bounds for points array of length {len(self._geometry.points)}."
             )
-        return np.asarray(self.geometry.points)[ind]
+        return np.asarray(self._geometry.points)[ind]
 
     def get_points(self) -> np.ndarray:
         """Return all points in the surface wireframe as a numpy array.
@@ -80,7 +80,7 @@ class SurfaceWireframe(GeometryBase):
         Returns:
             np.ndarray: An array containing all points in the surface wireframe.
         """
-        return np.asarray(self.geometry.points)
+        return np.asarray(self._geometry.points)
 
     def get_line(self, ind: int) -> np.ndarray:
         """Return a line in the surface wireframe given its index.
@@ -94,11 +94,11 @@ class SurfaceWireframe(GeometryBase):
         Returns:
             np.ndarray: The line at the specified index.
         """
-        if ind < 0 or ind >= len(self.geometry.lines):
+        if ind < 0 or ind >= len(self._geometry.lines):
             raise IndexError(
-                f"Index {ind} is out of bounds for lines array of length {len(self.geometry.lines)}."
+                f"Index {ind} is out of bounds for lines array of length {len(self._geometry.lines)}."
             )
-        return np.asarray(self.geometry.lines)[ind]
+        return np.asarray(self._geometry.lines)[ind]
 
     def get_lines(self) -> np.ndarray:
         """Return all lines in the surface wireframe as a numpy array.
@@ -106,7 +106,7 @@ class SurfaceWireframe(GeometryBase):
         Returns:
             np.ndarray: An array containing all lines in the surface wireframe.
         """
-        return np.asarray(self.geometry.lines)
+        return np.asarray(self._geometry.lines)
 
     # %% IO
     @overrides
@@ -125,7 +125,7 @@ class SurfaceWireframe(GeometryBase):
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
 
-        o3d.io.write_line_set(file_path, self.geometry)
+        o3d.io.write_line_set(file_path, self._geometry)
 
     @overrides
     def load(self, file_path: Optional[str] = None) -> None:
@@ -141,16 +141,47 @@ class SurfaceWireframe(GeometryBase):
             if file_path is None:
                 raise ValueError("No file selected. Please provide a valid file path.")
 
-        self.geometry = o3d.io.read_line_set(file_path)
+        self._geometry = o3d.io.read_line_set(file_path)
 
     # %% Dunder methods
     @overrides
     def __repr__(self) -> str:
-        return f"SurfaceWireframe with {len(self.geometry.points)} vertices and {len(self.geometry.lines)} edges."
+        return f"SurfaceWireframe with {len(self._geometry.points)} vertices and {len(self._geometry.lines)} edges."
 
     @overrides
     def __len__(self) -> int:
-        return len(self.geometry.points)
+        return len(self._geometry.points)
+    
+    @overrides
+    def __add__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+        if not isinstance(other, SurfaceWireframe):
+            raise TypeError(f"Unsupported operand type(s) for +: 'SurfaceWireframe' and '{type(other).__name__}'")
+        
+        new_geometry = self._geometry + other._geometry
+        return SurfaceWireframe.from_o3d(new_geometry)
+    
+    @overrides
+    def __sub__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+        if not isinstance(other, SurfaceWireframe):
+            raise TypeError(f"Unsupported operand type(s) for -: 'SurfaceWireframe' and '{type(other).__name__}'")
+        
+        raise NotImplementedError("Subtraction of SurfaceWireframe instances is not implemented yet.")
+    
+    @overrides
+    def __iadd__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+        if not isinstance(other, SurfaceWireframe):
+            raise TypeError(f"Unsupported operand type(s) for +=: 'SurfaceWireframe' and '{type(other).__name__}'")
+        
+        new_geometry = self._geometry + other._geometry
+        self._geometry = new_geometry
+        return self
+    
+    @overrides
+    def __isub__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+        if not isinstance(other, SurfaceWireframe):
+            raise TypeError(f"Unsupported operand type(s) for -=: 'SurfaceWireframe' and '{type(other).__name__}'")
+        
+        raise NotImplementedError("In-place subtraction of SurfaceWireframe instances is not implemented yet.")
 
     # %% Properties
     @property
@@ -160,7 +191,7 @@ class SurfaceWireframe(GeometryBase):
         Returns:
             o3d.utility.Vector3dVector: The points of the surface wireframe.
         """
-        return self.geometry.points
+        return self._geometry.points
 
     @points.setter
     def points(self, point_array: Union[np.ndarray, o3d.utility.Vector3dVector]):
@@ -171,7 +202,7 @@ class SurfaceWireframe(GeometryBase):
         """
         if isinstance(point_array, np.ndarray):
             point_array = o3d.utility.Vector3dVector(point_array)
-        self.geometry.points = point_array
+        self._geometry.points = point_array
 
     @property
     def lines(self) -> o3d.utility.Vector2iVector:
@@ -180,7 +211,7 @@ class SurfaceWireframe(GeometryBase):
         Returns:
             np.ndarray: An array containing the indices of the endpoints for each line in the surface wireframe.
         """
-        return self.geometry.lines
+        return self._geometry.lines
 
     @lines.setter
     def lines(
@@ -196,12 +227,12 @@ class SurfaceWireframe(GeometryBase):
         """
         if isinstance(line_array, np.ndarray):
             line_array = o3d.utility.Vector2iVector(line_array)
-        self.geometry.lines = line_array
+        self._geometry.lines = line_array
 
     @property
     @overrides
     def colors(self) -> Union[np.ndarray, o3d.utility.Vector3dVector]:
-        return self.geometry.colors
+        return self._geometry.colors
 
     @colors.setter
     @overrides
@@ -210,4 +241,4 @@ class SurfaceWireframe(GeometryBase):
     ) -> None:
         if isinstance(color_array, np.ndarray):
             color_array = o3d.utility.Vector3dVector(color_array)
-        self.geometry.colors = color_array
+        self._geometry.colors = color_array
