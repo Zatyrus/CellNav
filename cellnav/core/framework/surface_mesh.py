@@ -3,7 +3,7 @@ import os
 import sys
 import numpy as np
 import open3d as o3d
-from typing import Union, Optional
+from typing import Any, Dict, List, Union, Optional
 from overrides import overrides
 
 if sys.platform.startswith("win"):
@@ -54,6 +54,16 @@ class SurfaceMesh(GeometryBase):
     @classmethod
     @overrides
     def from_o3d(cls, geometry: o3d.geometry.TriangleMesh, **kwargs) -> "SurfaceMesh":
+        return cls(geometry=geometry, **kwargs)
+    
+    @classmethod
+    @overrides
+    def from_dict(cls, geometry_dict: Dict[str, Optional[Any]], **kwargs) -> "SurfaceMesh":
+        vertices = o3d.utility.Vector3dVector(geometry_dict["vertices"])
+        triangles = o3d.utility.Vector3iVector(geometry_dict["triangles"])
+        geometry = o3d.geometry.TriangleMesh(vertices=vertices, triangles=triangles)
+        if geometry_dict.get("colors") is not None:
+            geometry.vertex_colors = o3d.utility.Vector3dVector(geometry_dict["colors"])
         return cls(geometry=geometry, **kwargs)
 
     # %% Utility functions
@@ -340,6 +350,16 @@ class SurfaceMesh(GeometryBase):
                 raise ValueError("No file selected. Please provide a valid file path.")
 
         self._geometry = o3d.io.read_triangle_mesh(file_path)
+        
+    @overrides
+    def to_dict(self) -> Dict[str, Optional[Any]]:
+        return {
+            "vertices": np.asarray(self._geometry.vertices).tolist(),
+            "triangles": np.asarray(self._geometry.triangles).tolist(),
+            "colors": np.asarray(self._geometry.vertex_colors).tolist()
+            if self._geometry.vertex_colors
+            else None,
+        }
 
     # %% Dunder methods
     @overrides

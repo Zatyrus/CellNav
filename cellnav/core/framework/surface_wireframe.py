@@ -3,7 +3,7 @@ import os
 import sys
 import numpy as np
 import open3d as o3d
-from typing import Union, Optional
+from typing import Any, List, Dict, Union, Optional
 from overrides import overrides
 
 if sys.platform.startswith("win"):
@@ -53,6 +53,16 @@ class SurfaceWireframe(GeometryBase):
     @classmethod
     @overrides
     def from_o3d(cls, geometry: o3d.geometry.LineSet, **kwargs) -> "SurfaceWireframe":
+        return cls(geometry=geometry, **kwargs)
+    
+    @classmethod
+    @overrides
+    def from_dict(cls, geometry_dict: Dict[str, Optional[Any]], **kwargs) -> "SurfaceWireframe":
+        points = o3d.utility.Vector3dVector(geometry_dict["points"])
+        lines = o3d.utility.Vector2iVector(geometry_dict["lines"])
+        geometry = o3d.geometry.LineSet(points=points, lines=lines)
+        if geometry_dict.get("colors") is not None:
+            geometry.colors = o3d.utility.Vector3dVector(geometry_dict["colors"])
         return cls(geometry=geometry, **kwargs)
 
     # %% Utility functions
@@ -143,6 +153,14 @@ class SurfaceWireframe(GeometryBase):
 
         self._geometry = o3d.io.read_line_set(file_path)
 
+    @overrides
+    def to_dict(self) -> Dict[str, Optional[Any]]:
+        return {
+            "points": np.asarray(self._geometry.points).tolist(),
+            "lines": np.asarray(self._geometry.lines).tolist(),
+            "colors": np.asarray(self._geometry.colors).tolist() if self._geometry.colors is not None else None
+        }
+
     # %% Dunder methods
     @overrides
     def __repr__(self) -> str:
@@ -153,7 +171,7 @@ class SurfaceWireframe(GeometryBase):
         return len(self._geometry.points)
     
     @overrides
-    def __add__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+    def __add__(self, other: "GeometryBase") -> "SurfaceWireframe":
         if not isinstance(other, SurfaceWireframe):
             raise TypeError(f"Unsupported operand type(s) for +: 'SurfaceWireframe' and '{type(other).__name__}'")
         
@@ -161,14 +179,14 @@ class SurfaceWireframe(GeometryBase):
         return SurfaceWireframe.from_o3d(new_geometry)
     
     @overrides
-    def __sub__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+    def __sub__(self, other: "GeometryBase") -> "SurfaceWireframe":
         if not isinstance(other, SurfaceWireframe):
             raise TypeError(f"Unsupported operand type(s) for -: 'SurfaceWireframe' and '{type(other).__name__}'")
         
         raise NotImplementedError("Subtraction of SurfaceWireframe instances is not implemented yet.")
     
     @overrides
-    def __iadd__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+    def __iadd__(self, other: "GeometryBase") -> "SurfaceWireframe":
         if not isinstance(other, SurfaceWireframe):
             raise TypeError(f"Unsupported operand type(s) for +=: 'SurfaceWireframe' and '{type(other).__name__}'")
         
@@ -177,7 +195,7 @@ class SurfaceWireframe(GeometryBase):
         return self
     
     @overrides
-    def __isub__(self, other: "SurfaceWireframe") -> "SurfaceWireframe":
+    def __isub__(self, other: "GeometryBase") -> "SurfaceWireframe":
         if not isinstance(other, SurfaceWireframe):
             raise TypeError(f"Unsupported operand type(s) for -=: 'SurfaceWireframe' and '{type(other).__name__}'")
         

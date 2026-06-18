@@ -4,7 +4,7 @@ import open3d as o3d
 import matplotlib.colors
 from copy import deepcopy
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 __all__ = ["GeometryBase"]
 
@@ -93,6 +93,21 @@ class GeometryBase(ABC):
         Args:
             geometry (Union[ o3d.geometry.PointCloud, o3d.geometry.TriangleMesh, o3d.geometry.LineSet ]): The existing Open3D geometry object.
 
+        Returns:
+            GeometryBase: The created geometry object.
+        """
+        pass
+    
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, geometry_dict: Dict[str, Optional[Any]], **kwargs) -> "GeometryBase":
+        """
+        Create a GeometryBase object from a dictionary representation.
+        This can be used to create a geometry object from a serialized format (e.g. JSON) or from a custom dictionary representation.
+
+        Args:
+            geometry_dict (Dict[str, Any]): The dictionary representation of the geometry object.
+            
         Returns:
             GeometryBase: The created geometry object.
         """
@@ -412,6 +427,15 @@ class GeometryBase(ABC):
 
         Args:
             file_path (Optional[str], optional): The path to the file from which the object will be loaded. Defaults to None.
+        """
+        pass
+
+    @abstractmethod
+    def to_dict(self) -> Dict[str, Optional[Any]]:
+        """Convert the geometry object to a dictionary representation that can be easily serialized to JSON or other formats.
+
+        Returns:
+            Dict[str, Any]: A dictionary representation of the geometry object, including its type and properties.
         """
         pass
 

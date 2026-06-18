@@ -15,7 +15,7 @@ if sys.platform.startswith("win"):
 else:
     pyfd = None  # placeholder for non-Windows systems, as tkinter is not supported on Unix-based systems
 
-from typing import List, Tuple, Union, Optional
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 ## custom dependencies
 from cellnav.core.containers.geometry_base import GeometryBase
@@ -60,6 +60,21 @@ class PointCloud(GeometryBase):
     @classmethod
     @overrides
     def from_o3d(cls, geometry: o3d.geometry.PointCloud, **kwargs) -> "PointCloud":
+        return cls(geometry=geometry, **kwargs)
+    
+    @classmethod
+    @overrides
+    def from_dict(cls, geometry_dict: Dict[str, Optional[Any]], **kwargs) -> "PointCloud":
+        if "points" not in geometry_dict:
+            raise ValueError("Input dictionary must contain a 'points' key with the point cloud data.")
+        
+        geometry = o3d.geometry.PointCloud()
+        geometry.points = o3d.utility.Vector3dVector(np.array(geometry_dict["points"]))
+
+        if "colors" in geometry_dict and geometry_dict["colors"] is not None:
+            colors = np.array(geometry_dict["colors"])
+            geometry.colors = o3d.utility.Vector3dVector(colors)
+
         return cls(geometry=geometry, **kwargs)
 
     @classmethod
@@ -658,6 +673,15 @@ class PointCloud(GeometryBase):
                 raise ValueError("No file selected. Please provide a valid file path.")
 
         self._geometry = o3d.io.read_point_cloud(file_path)
+
+    @overrides
+    def to_dict(self) -> Dict[str, Optional[Any]]:
+        return {
+            "points": np.asarray(self._geometry.points).tolist(),
+            "colors": np.asarray(self._geometry.colors).tolist()
+            if self._geometry.colors
+            else None,
+        }
 
     # %% Helper functions
     def __display_inlier_outlier(
